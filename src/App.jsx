@@ -31,6 +31,31 @@ function App() {
     setSuppliers(data || []);
   }
 
+  async function addSupplier() {
+    const businessName = prompt("Nombre del suplidor:");
+
+    if (!businessName) return;
+
+    const { error } = await supabase.from("Suppliers").insert([
+      {
+        business_name: businessName,
+        phone: "000-000-0000",
+        email: "nuevo@email.com",
+        category: "General",
+        status: "Activo",
+        balance: 0,
+      },
+    ]);
+
+    if (error) {
+      console.error(error);
+      alert("Error creando suplidor");
+      return;
+    }
+
+    getSuppliers();
+  }
+
   return (
     <div className="erp-container">
       <aside className="sidebar">
@@ -78,7 +103,20 @@ function App() {
         </section>
 
         <section className="panel">
-          <h3>Suplidores desde Supabase</h3>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              marginBottom: "20px",
+            }}
+          >
+            <h3>Suplidores desde Supabase</h3>
+
+            <button onClick={addSupplier}>
+              Nuevo Suplidor
+            </button>
+          </div>
 
           <table>
             <thead>
