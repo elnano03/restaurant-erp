@@ -78,6 +78,54 @@ function App() {
 
     getSuppliers();
   }
+  async function editSupplier(supplier) {
+
+  const businessName = prompt(
+    "Nombre del suplidor:",
+    supplier.business_name
+  );
+
+  if (!businessName) return;
+
+  const phone = prompt(
+    "Teléfono:",
+    supplier.phone
+  );
+
+  const email = prompt(
+    "Email:",
+    supplier.email
+  );
+
+  const category = prompt(
+    "Categoría:",
+    supplier.category
+  );
+
+  const balance = prompt(
+    "Balance:",
+    supplier.balance
+  );
+
+  const { error } = await supabase
+    .from("Suppliers")
+    .update({
+      business_name: businessName,
+      phone: phone,
+      email: email,
+      category: category,
+      balance: Number(balance),
+    })
+    .eq("id", supplier.id);
+
+  if (error) {
+    console.error("Error actualizando suplidor:", error);
+    alert("Error actualizando suplidor");
+    return;
+  }
+
+  getSuppliers();
+}
 
   return (
     <div className="erp-container">
@@ -164,6 +212,17 @@ function App() {
                   <td>${supplier.balance}</td>
                   <td>{supplier.status}</td>
                   <td>
+                    <button
+  onClick={() => editSupplier(supplier)}
+  style={{
+    background: "#2563eb",
+    padding: "8px 12px",
+    fontSize: "12px",
+    marginRight: "8px",
+  }}
+>
+  Editar
+</button>
                     <button
                       onClick={() => deleteSupplier(supplier.id)}
                       style={{
