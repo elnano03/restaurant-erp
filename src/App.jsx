@@ -33,23 +33,46 @@ function App() {
 
   async function addSupplier() {
     const businessName = prompt("Nombre del suplidor:");
-
     if (!businessName) return;
+
+    const phone = prompt("Teléfono del suplidor:");
+    const email = prompt("Email del suplidor:");
+    const category = prompt("Categoría del suplidor:");
+    const balance = prompt("Balance inicial:");
 
     const { error } = await supabase.from("Suppliers").insert([
       {
         business_name: businessName,
-        phone: "000-000-0000",
-        email: "nuevo@email.com",
-        category: "General",
+        phone: phone || "",
+        email: email || "",
+        category: category || "General",
         status: "Activo",
-        balance: 0,
+        balance: Number(balance) || 0,
       },
     ]);
 
     if (error) {
-      console.error(error);
+      console.error("Error creando suplidor:", error);
       alert("Error creando suplidor");
+      return;
+    }
+
+    getSuppliers();
+  }
+
+  async function deleteSupplier(id) {
+    const confirmDelete = confirm("¿Seguro que deseas eliminar este suplidor?");
+
+    if (!confirmDelete) return;
+
+    const { error } = await supabase
+      .from("Suppliers")
+      .delete()
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error eliminando suplidor:", error);
+      alert("Error eliminando suplidor");
       return;
     }
 
@@ -127,6 +150,7 @@ function App() {
                 <th>Email</th>
                 <th>Balance</th>
                 <th>Estado</th>
+                <th>Acciones</th>
               </tr>
             </thead>
 
@@ -139,6 +163,18 @@ function App() {
                   <td>{supplier.email}</td>
                   <td>${supplier.balance}</td>
                   <td>{supplier.status}</td>
+                  <td>
+                    <button
+                      onClick={() => deleteSupplier(supplier.id)}
+                      style={{
+                        background: "#dc2626",
+                        padding: "8px 12px",
+                        fontSize: "12px",
+                      }}
+                    >
+                      Eliminar
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
