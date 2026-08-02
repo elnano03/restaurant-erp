@@ -173,3 +173,28 @@ td {
   background: #dcfce7;
   color: #166534;
 }
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding-top: 24px;
+  border-top: 1px solid #374151;
+  color: #9ca3af;
+}
+
+.sidebar-footer p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.sidebar-footer span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+}
