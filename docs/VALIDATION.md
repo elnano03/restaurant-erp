@@ -1,6 +1,6 @@
-# Validación — SINTECH 2.0
+# Validación — SINTECH 2.1
 
-`npm run check`: **21 pruebas aprobadas, 0 fallidas**, lint y build correctos.
+`npm run check`: **25 pruebas aprobadas, 0 fallidas**, lint y build correctos.
 
 La suite cubre cálculos en centavos, ciclo de facturas/pagos, duplicados, versiones, sobrepagos, reversos, auditoría, importación histórica, RLS y restricciones de escritura. Incluye PostgreSQL embebido PGlite y formularios React montados en JSDOM.
 
@@ -13,3 +13,11 @@ Auth y Storage se simulan en las pruebas SQL. Estas pruebas no verifican envío 
 La revisión visual de escritorio/móvil y la prueba de recuperación por correo siguen pendientes. Los reportes históricos reconstruyen saldos según fechas de negocio y aprobación/reverso; no son un libro mayor ni una certificación contable.
 
 Los snapshots cargan todos los registros de una empresa. Su retención y la restauración dentro de la misma base no sustituyen respaldo externo de datos y Storage.
+
+## Importación e inventario 2.1
+
+Pruebas adicionales: creación de suplidor desde perfil, revisión obligatoria antes de publicar, cantidades de caja frente a unidad de inventario, extracción de campos y agrupación de texto PDF. PostgreSQL verifica transacción completa con rollback, archivo repetido, idempotencia, cantidades negativas rechazadas, separación entre empresas, revocación de helpers, anulación de existencias y restauración de líneas/productos/movimientos.
+
+Los motores reales PDF.js/Tesseract se probaron localmente con una factura sintética en PDF de texto, imagen PNG y PDF escaneado: se detectaron dos productos y el total de 40.17 en los tres casos. OCR confundió lb con Ib en el ejemplo escaneado: la unidad quedó vacía para revisión, sin convertirla silenciosamente. No se ha comprobado la extracción del contenido del documento real NebraskaLand.pdf.
+
+La instalación del navegador de pruebas no pudo descargar Chromium; no se afirma una prueba visual completa ni OCR de punta a punta en Edge. Los formularios se verificaron montados en JSDOM y los motores en Node.

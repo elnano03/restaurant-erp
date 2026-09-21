@@ -971,15 +971,13 @@ export function Purchasing({ state, onSubmit, canWrite }) {
       if (qty <= 0) continue;
       const q = qs.find((x) => x.id === choices[key]) || qs[0];
       if (!perSupplier.has(q.supplier_id)) perSupplier.set(q.supplier_id, []);
-      perSupplier
-        .get(q.supplier_id)
-        .push({
-          product: q.product,
-          brand: q.brand,
-          unit: q.unit,
-          quantity: qty,
-          unit_cents: q.unit_cents,
-        });
+      perSupplier.get(q.supplier_id).push({
+        product: q.product,
+        brand: q.brand,
+        unit: q.unit,
+        quantity: qty,
+        unit_cents: q.unit_cents,
+      });
     }
     if (!perSupplier.size)
       throw new Error("Enter quantities for at least one product.");
@@ -1367,6 +1365,7 @@ export function Documents({
   onSubmit,
   canWrite,
   isAdmin,
+  navigate,
   initialType = "invoice",
   initialId = "",
 }) {
@@ -1450,7 +1449,16 @@ export function Documents({
   }
   return (
     <>
-      <Header title="Documents">
+      <Header
+        title="Documents"
+        actions={
+          canWrite && (
+            <Button onClick={() => navigate("/invoice-import")}>
+              Upload & read invoice
+            </Button>
+          )
+        }
+      >
         Private invoice images, supplier documents and payment evidence.
         Archived files are retained for audit history.
       </Header>
@@ -1528,6 +1536,14 @@ export function Documents({
             >
               Download
             </Button>
+            {canWrite && !d.archived_at && (
+              <Button
+                kind="ghost"
+                onClick={() => navigate("/invoice-import?document=" + d.id)}
+              >
+                Read as invoice
+              </Button>
+            )}
             {isAdmin && !d.archived_at && (
               <Button
                 kind="ghost"
@@ -1550,13 +1566,14 @@ export function Documents({
         ])}
       />
       <p>
-        Read the document and enter its amounts manually. Automated invoice
-        extraction is not enabled.
+        Use Upload & read invoice to extract and review products, then post
+        inventory and the payable. Upload document only attaches evidence to an
+        existing record.
       </p>
     </>
   );
 }
-export function SupplierProfile({ state, navigate }) {
+export function SupplierProfile({ state, navigate, open, canWrite }) {
   const [id, setId] = useState(state.suppliers[0]?.id || "");
   const s = state.suppliers.find((x) => x.id === id);
   const invoices = state.invoices.filter((i) => i.supplier_id === id);
@@ -1568,7 +1585,26 @@ export function SupplierProfile({ state, navigate }) {
     .reduce((n, c) => n + c.amount_cents - creditUsed(state, c.id), 0);
   return (
     <>
-      <Header title="Supplier profile">
+      <Header
+        title="Supplier profile"
+        actions={
+          canWrite && (
+            <>
+              <Button onClick={() => open({ kind: "supplier" })}>
+                New supplier
+              </Button>
+              {s && (
+                <Button
+                  kind="secondary"
+                  onClick={() => open({ kind: "supplier", id: s.id })}
+                >
+                  Edit supplier
+                </Button>
+              )}
+            </>
+          )
+        }
+      >
         Contact information, current balances and transaction history in one
         place.
       </Header>

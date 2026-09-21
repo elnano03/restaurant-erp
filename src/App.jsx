@@ -45,6 +45,7 @@ import {
 } from "./ui/dialogs";
 import { Button, Field } from "./ui/common";
 import "./App.css";
+import { InvoiceImport, Inventory } from "./ui/invoice-import";
 import {
   Categories,
   BusinessUsers,
@@ -63,6 +64,8 @@ const links = [
   ["/categories", "Supplier categories", Users],
   ["/supplier-profile", "Supplier profile", Users],
   ["/invoices", "Invoices", FileText],
+  ["/invoice-import", "Import invoice", FileText],
+  ["/inventory", "Inventory", Database],
   ["/credits", "Credits & returns", CreditCard],
   ["/payments", "Payments", CreditCard],
   ["/planner", "Payment planner", CreditCard],
@@ -390,6 +393,7 @@ function App() {
       pending.current = null;
       sessionStorage.removeItem("sintech-pending");
       setToast("Saved successfully.");
+      return data;
     } finally {
       setSaving(false);
     }
@@ -407,6 +411,8 @@ function App() {
     );
   if (!mode) return <Welcome choose={choose} />;
   const props = {
+    initialDocumentId:
+      new URLSearchParams(location.search).get("document") || "",
     state,
     open,
     canWrite,
@@ -419,6 +425,8 @@ function App() {
   if (state) {
     const extras = {
       "/categories": Categories,
+      "/inventory": Inventory,
+      "/invoice-import": InvoiceImport,
       "/businesses": BusinessUsers,
       "/credits": Credits,
       "/planner": PaymentPlanner,

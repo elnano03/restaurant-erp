@@ -1,7 +1,7 @@
 {
   "name": "restaurante-erp",
   "private": true,
-  "version": "2.0.0",
+  "version": "2.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,17 +10,23 @@
     "preview": "vite preview",
     "start": "node scripts/start.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "npm run lint && npm run build && npm test"
+    "check": "npm run lint && npm run build && npm test",
+    "prebuild": "node scripts/prepare-reader.mjs",
+    "predev": "node scripts/prepare-reader.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.106.0",
     "@tailwindcss/vite": "^4.3.0",
+    "@tesseract.js-data/eng": "1.0.0",
+    "@tesseract.js-data/spa": "1.0.0",
     "lucide-react": "^1.16.0",
+    "pdfjs-dist": "6.3.289",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.15.1",
     "recharts": "^3.8.1",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.0",
+    "tesseract.js": "7.0.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",

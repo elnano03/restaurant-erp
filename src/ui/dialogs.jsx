@@ -43,7 +43,8 @@ export function SupplierDialog({ supplier, state, onClose, onSubmit }) {
       phone: "",
       email: "",
       address: "",
-      category: state.categories?.find(c=>c.active)?.name || "Food & Beverages",
+      category:
+        state.categories?.find((c) => c.active)?.name || "Food & Beverages",
       status: "Active",
       terms_days: state.settings.terms_days,
       notes: "",
@@ -103,7 +104,16 @@ export function SupplierDialog({ supplier, state, onClose, onSubmit }) {
           </Field>
           <Field label="Category">
             <select {...bind("category")}>
-              {[...new Set([...(state.categories ? state.categories.filter(c=>c.active).map(c=>c.name) : CATEGORIES), f.category])]
+              {[
+                ...new Set([
+                  ...(state.categories
+                    ? state.categories
+                        .filter((c) => c.active)
+                        .map((c) => c.name)
+                    : CATEGORIES),
+                  f.category,
+                ]),
+              ]
                 .filter(Boolean)
                 .map((x) => (
                   <option key={x}>{x}</option>
@@ -165,7 +175,8 @@ export function InvoiceDialog({
             state.suppliers.find((s) => s.id === supplierId)?.terms_days ??
               state.settings.terms_days,
           ),
-          category: state.categories?.find(c=>c.active)?.name || "Food & Beverages",
+          category:
+            state.categories?.find((c) => c.active)?.name || "Food & Beverages",
           description: "",
           subtotal: "",
           tax: "0.00",
@@ -245,7 +256,16 @@ export function InvoiceDialog({
           </Field>
           <Field label="Category">
             <select {...bind("category")}>
-              {[...new Set([...(state.categories ? state.categories.filter(c=>c.active).map(c=>c.name) : CATEGORIES), f.category])]
+              {[
+                ...new Set([
+                  ...(state.categories
+                    ? state.categories
+                        .filter((c) => c.active)
+                        .map((c) => c.name)
+                    : CATEGORIES),
+                  f.category,
+                ]),
+              ]
                 .filter(Boolean)
                 .map((x) => (
                   <option key={x}>{x}</option>
@@ -493,6 +513,52 @@ export function InvoiceDetail({
         </dl>
         {invoice.void_reason && (
           <div className="alert">Voided: {invoice.void_reason}</div>
+        )}
+        {(state.invoice_lines || []).some(
+          (l) => l.invoice_id === invoice.id,
+        ) && (
+          <>
+            <h3>Invoice products</h3>
+            <p>
+              {invoice.status === "Void"
+                ? "Voided receipt"
+                : invoice.inventory_received_at
+                  ? "Inventory received"
+                  : "Awaiting inventory receipt"}
+            </p>
+            <div className="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Product / description</th>
+                    <th>Billed quantity</th>
+                    <th>Unit price</th>
+                    <th>Amount</th>
+                    <th>Inventory quantity</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(state.invoice_lines || [])
+                    .filter((l) => l.invoice_id === invoice.id)
+                    .map((l) => (
+                      <tr key={l.id}>
+                        <td>{l.description}</td>
+                        <td>
+                          {l.quantity} {l.unit}
+                        </td>
+                        <td>${Number(l.unit_price).toFixed(4)}</td>
+                        <td>{money(l.amount_cents)}</td>
+                        <td>
+                          {l.product_id
+                            ? `${l.stock_quantity} ${state.products?.find((p) => p.id === l.product_id)?.unit || ""}`
+                            : "Non-stock expense"}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
         <h3>Payment history</h3>
         {payments.length ? (

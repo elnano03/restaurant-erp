@@ -1,4 +1,4 @@
-# SINTECH Restaurant ERP — Business Operations 2.0
+# SINTECH Restaurant ERP — Business Operations 2.1
 
 Restaurant accounts payable and purchasing application. React/Vite, Supabase/PostgreSQL, English UI, USD, America/New_York business dates.
 
@@ -22,6 +22,8 @@ Use Node.js 22.12+ or 24 LTS. Set the public Supabase URL and publishable key fr
 - Supplier credits/returns, allocation to invoices and controlled reversal.
 - Weekly payment plans with budget and current balances.
 - Supplier price comparison by matching product, brand and unit; editable purchase orders, receipt and conversion to draft invoices.
+- Invoice upload → reviewed product lines → approved payable and optional inventory receipt, in one transaction. Duplicate file hashes and invoice numbers prevent double posting.
+- Product catalog, unit-aware stock quantities, receipt history, audited adjustments and stock reversal on invoice void.
 - Private PDF/JPEG/PNG/WebP documents linked to suppliers, invoices, payments, orders or credits.
 - Current and historical balance reports, CSV and print/PDF.
 - Business snapshots before the first write each UTC day, manual snapshots, download and non-destructive restore as a separate business.
@@ -37,8 +39,10 @@ See [deployment](docs/DEPLOYMENT.md), [validation](docs/VALIDATION.md) and [rele
 
 ## Limits
 
-This is an AP/purchasing module, not a full general ledger, POS, inventory, recipes or payroll system. Payments record externally made transactions; no money is transferred. Invoice amounts are entered manually; OCR/AI extraction is not enabled. Purchase-order receipt is whole-order, not partial. Quotes are entered manually, with no automatic unit conversion.
+This is an AP/purchasing module, not a full general ledger, POS, recipe-costing or payroll system. Payments record externally made transactions; no money is transferred. Invoice imports read PDF text or run local OCR on scans/images; suggested fields and product rows require review and reconciliation before posting. No paid AI API or automatic background posting is used. Purchase-order receipt is whole-order, not partial. Quotes are entered manually, with no automatic unit conversion.
 
 Snapshots share the same database and exclude document bytes and Auth credentials; they do not replace independent disaster-recovery backups. A restored business keeps financial history and gets new IDs; only the restoring administrator receives access. Documents remain in the original business.
 
 Account creation/confirmation remains in Supabase Authentication; business access is managed in the app. Password recovery and email changes depend on Auth URL and email-provider configuration. Private website sharing is an additional access gate. Snapshots load all business records; server pagination is needed before large-scale use.
+
+See [invoice import guide](docs/INVOICE_IMPORT.md). Apply the additive `20260921220532_invoice_inventory_import.sql` migration after v2. OCR assets are generated from pinned packages by `prebuild`/`predev`; do not skip these steps when packaging.

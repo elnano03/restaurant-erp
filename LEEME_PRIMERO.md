@@ -1,4 +1,4 @@
-# SINTECH ERP — Versión 2.0
+# SINTECH ERP — Versión 2.1
 
 Abre el sitio publicado e inicia sesión en **Shared workspace** con tu cuenta. El selector de la barra lateral cambia la empresa. La empresa original conserva sus datos; crear otra empresa no mueve ni copia sus registros.
 
@@ -42,3 +42,7 @@ Crea y confirma la cuenta de cada persona en Supabase Authentication; luego usa 
 El modo local y la demostración conservan las funciones originales de cuentas por pagar. Las mejoras v2 necesitan sesión en el espacio compartido. Los registros locales no se suben automáticamente. En una compilación local, ejecuta `node scripts/start.mjs` después de `npm run build`; no abras `dist/index.html` directamente.
 
 Guías técnicas: `docs/DEPLOYMENT.md`, `docs/VALIDATION.md` y `docs/RELEASE_V2.md`.
+
+## Cargar una factura y alimentar inventario
+
+Usa **Import invoice** o **Invoices → Upload & read invoice**. Puedes leer un archivo existente desde Documents. Revisa datos y líneas, relaciona cada producto con su unidad, confirma los totales y marca si ya recibiste la mercancía. Al confirmar se actualizan juntos inventario y cuentas por pagar. La lectura sugiere datos; no adivina unidades ni publica sin revisión. Guía completa: `docs/INVOICE_IMPORT.md`.

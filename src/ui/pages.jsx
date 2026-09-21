@@ -409,7 +409,7 @@ export function Suppliers({ state, open, canWrite, navigate }) {
     </>
   );
 }
-export function Invoices({ state, open, canWrite }) {
+export function Invoices({ state, open, canWrite, navigate }) {
   const [q, setQ] = useState(""),
     [status, setStatus] = useState("All"),
     [supplier, setSupplier] = useState(""),
@@ -464,10 +464,20 @@ export function Invoices({ state, open, canWrite }) {
           <p>Review, approve and track every bill.</p>
         </div>
         {canWrite && (
-          <Button onClick={() => open({ kind: "invoice" })}>
-            <Plus size={18} />
-            New invoice
-          </Button>
+          <div className="actions">
+            {state.business_id && (
+              <Button
+                kind="secondary"
+                onClick={() => navigate("/invoice-import")}
+              >
+                Upload & read invoice
+              </Button>
+            )}
+            <Button onClick={() => open({ kind: "invoice" })}>
+              <Plus size={18} />
+              New invoice
+            </Button>
+          </div>
         )}
       </div>
       <section className="panel">
