@@ -43,7 +43,7 @@ export function SupplierDialog({ supplier, state, onClose, onSubmit }) {
       phone: "",
       email: "",
       address: "",
-      category: "Food & Beverages",
+      category: state.categories?.find(c=>c.active)?.name || "Food & Beverages",
       status: "Active",
       terms_days: state.settings.terms_days,
       notes: "",
@@ -103,7 +103,7 @@ export function SupplierDialog({ supplier, state, onClose, onSubmit }) {
           </Field>
           <Field label="Category">
             <select {...bind("category")}>
-              {[...new Set([...CATEGORIES, f.category])]
+              {[...new Set([...(state.categories ? state.categories.filter(c=>c.active).map(c=>c.name) : CATEGORIES), f.category])]
                 .filter(Boolean)
                 .map((x) => (
                   <option key={x}>{x}</option>
@@ -165,7 +165,7 @@ export function InvoiceDialog({
             state.suppliers.find((s) => s.id === supplierId)?.terms_days ??
               state.settings.terms_days,
           ),
-          category: "Food & Beverages",
+          category: state.categories?.find(c=>c.active)?.name || "Food & Beverages",
           description: "",
           subtotal: "",
           tax: "0.00",
@@ -245,7 +245,7 @@ export function InvoiceDialog({
           </Field>
           <Field label="Category">
             <select {...bind("category")}>
-              {[...new Set([...CATEGORIES, f.category])]
+              {[...new Set([...(state.categories ? state.categories.filter(c=>c.active).map(c=>c.name) : CATEGORIES), f.category])]
                 .filter(Boolean)
                 .map((x) => (
                   <option key={x}>{x}</option>

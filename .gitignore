@@ -27,3 +27,6 @@ playwright-report/
 *.njsproj
 *.sln
 *.sw?
+
+# Supabase CLI cache
+supabase/.temp/

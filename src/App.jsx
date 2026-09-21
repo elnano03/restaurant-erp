@@ -45,14 +45,34 @@ import {
 } from "./ui/dialogs";
 import { Button, Field } from "./ui/common";
 import "./App.css";
+import {
+  Categories,
+  BusinessUsers,
+  Credits,
+  PaymentPlanner,
+  HistoricalReports,
+  Purchasing,
+  Documents,
+  SupplierProfile,
+  BackupsAccount,
+} from "./ui/operations";
 
 const links = [
   ["/dashboard", "Overview", LayoutDashboard],
   ["/suppliers", "Suppliers", Users],
+  ["/categories", "Supplier categories", Users],
+  ["/supplier-profile", "Supplier profile", Users],
   ["/invoices", "Invoices", FileText],
+  ["/credits", "Credits & returns", CreditCard],
   ["/payments", "Payments", CreditCard],
+  ["/planner", "Payment planner", CreditCard],
+  ["/purchasing", "Purchasing", FileText],
+  ["/documents", "Documents", FileText],
   ["/reports", "Reports", BarChart3],
+  ["/historical", "Historical reports", BarChart3],
   ["/activity", "Activity log", History],
+  ["/businesses", "Businesses & users", Users],
+  ["/backups", "Backups & account", SettingsIcon],
   ["/settings", "Settings", SettingsIcon],
 ];
 function Welcome({ choose }) {
@@ -96,7 +116,7 @@ function Welcome({ choose }) {
     }
   }
   return (
-    <div className="welcome">
+    <div className={cloud ? "welcome cloud-first" : "welcome"}>
       <section className="welcome-story">
         <div className="logo">
           <span className="logo-mark">
@@ -261,7 +281,18 @@ function App() {
     [modal, setModal] = useState(null),
     [toast, setToast] = useState(""),
     [navOpen, setNavOpen] = useState(false),
-    [recovery, setRecovery] = useState(passwordLink);
+    [recovery, setRecovery] = useState(passwordLink),
+    [online, setOnline] = useState(navigator.onLine),
+    [saving, setSaving] = useState(false);
+  useEffect(() => {
+    const update = () => setOnline(navigator.onLine);
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
+    };
+  }, []);
   const nav = useNavigate(),
     location = useLocation(),
     loadSequence = useRef(0),
@@ -325,6 +356,7 @@ function App() {
     nav("/dashboard");
   }
   async function leave() {
+    if (saving) return;
     ++loadSequence.current;
     if (mode === "cloud") await cloud.auth.signOut();
     sessionStorage.removeItem("sintech-mode");
@@ -338,22 +370,29 @@ function App() {
     nav(url);
   }
   async function submit(type, payload) {
-    const signature = JSON.stringify([mode, type, payload]);
+    const business_id =
+      mode === "cloud" ? sessionStorage.getItem("sintech-business") : undefined;
+    const signature = JSON.stringify([mode, business_id, type, payload]);
     // Keep the request ID after a failed response to make retries safe.
     const command =
       pending.current?.signature === signature
         ? pending.current.command
-        : { id: uid(), type, payload };
+        : { id: uid(), type, payload, business_id };
     pending.current = { signature, command, mode };
     sessionStorage.setItem("sintech-pending", JSON.stringify(pending.current));
     ++loadSequence.current;
-    const data = await execute(mode, command);
-    setState(data);
-    setError("");
-    setLoading(false);
-    pending.current = null;
-    sessionStorage.removeItem("sintech-pending");
-    setToast("Saved successfully.");
+    setSaving(true);
+    try {
+      const data = await execute(mode, command);
+      setState(data);
+      setError("");
+      setLoading(false);
+      pending.current = null;
+      sessionStorage.removeItem("sintech-pending");
+      setToast("Saved successfully.");
+    } finally {
+      setSaving(false);
+    }
   }
   const close = () => setModal(null),
     open = (value) => setModal(value);
@@ -367,10 +406,62 @@ function App() {
       />
     );
   if (!mode) return <Welcome choose={choose} />;
-  const props = { state, open, canWrite, isAdmin, navigate };
+  const props = {
+    state,
+    open,
+    canWrite,
+    isAdmin,
+    navigate,
+    onSubmit: submit,
+    reload: refresh,
+  };
   let content = null;
   if (state) {
-    if (path === "/suppliers") content = <Suppliers {...props} />;
+    const extras = {
+      "/categories": Categories,
+      "/businesses": BusinessUsers,
+      "/credits": Credits,
+      "/planner": PaymentPlanner,
+      "/purchasing": Purchasing,
+      "/historical": HistoricalReports,
+      "/supplier-profile": SupplierProfile,
+      "/backups": BackupsAccount,
+    };
+    const Extra = extras[path];
+    if (Extra)
+      content =
+        mode === "cloud" ? (
+          <Extra key={state.business_id} {...props} />
+        ) : (
+          <section className="panel">
+            <h2>Shared workspace feature</h2>
+            <p>
+              Sign in to your shared workspace to use business categories,
+              purchasing and the new controls. Your local records remain
+              available in the original modules.
+            </p>
+            <Button onClick={leave}>Go to sign in</Button>
+          </section>
+        );
+    else if (path === "/documents")
+      content =
+        mode === "cloud" ? (
+          <Documents
+            key={state.business_id + location.search}
+            {...props}
+            initialType={
+              ["supplier", "invoice", "payment", "order", "credit"].includes(
+                new URLSearchParams(location.search).get("type"),
+              )
+                ? new URLSearchParams(location.search).get("type")
+                : "invoice"
+            }
+            initialId={new URLSearchParams(location.search).get("id") || ""}
+          />
+        ) : (
+          <p>Documents require a shared workspace.</p>
+        );
+    else if (path === "/suppliers") content = <Suppliers {...props} />;
     else if (path === "/invoices") content = <Invoices {...props} />;
     else if (path === "/payments") content = <Payments {...props} />;
     else if (path === "/reports")
@@ -407,6 +498,28 @@ function App() {
         <div className="workspace-business">
           {state?.settings.business_name || "Accounts payable"}
         </div>
+        {mode === "cloud" && state?.businesses && (
+          <select
+            className="business-select"
+            disabled={saving || loading}
+            aria-label="Current business"
+            value={state.business_id}
+            onChange={async (e) => {
+              sessionStorage.setItem("sintech-business", e.target.value);
+              pending.current = null;
+              sessionStorage.removeItem("sintech-pending");
+              setState(null);
+              setModal(null);
+              await refresh();
+            }}
+          >
+            {state.businesses.map((b) => (
+              <option key={b.id} value={b.id}>
+                {b.name}
+              </option>
+            ))}
+          </select>
+        )}
         <nav aria-label="Main navigation">
           {links.map(([url, label, Icon]) => (
             <button
@@ -433,7 +546,7 @@ function App() {
           <div className="version">
             ACCOUNTS PAYABLE <span>v{VERSION}</span>
           </div>
-          <Button kind="ghost" onClick={leave}>
+          <Button kind="ghost" disabled={saving} onClick={leave}>
             <LogOut size={17} />
             {mode === "cloud" ? "Sign out" : "Switch workspace"}
           </Button>
@@ -482,6 +595,12 @@ function App() {
               : "SHARED WORKSPACE · Supabase · " +
                 (state?.role || "Verifying access")}
         </div>
+        {!online && mode === "cloud" && (
+          <div className="connection-note" role="alert">
+            Offline: displayed records may be outdated. Changes are not saved
+            until the server confirms them.
+          </div>
+        )}
         <main>
           {error && (
             <div className="alert error" role="alert">
@@ -489,7 +608,7 @@ function App() {
               <Button kind="ghost" onClick={refresh}>
                 Retry
               </Button>
-              <Button kind="ghost" onClick={leave}>
+              <Button kind="ghost" disabled={saving} onClick={leave}>
                 Switch workspace
               </Button>
             </div>

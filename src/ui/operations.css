@@ -1,0 +1,134 @@
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.tabs {
+  margin-bottom: 20px;
+}
+.supplier-checks {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.supplier-checks label,
+.inline-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.inline-check {
+  margin-top: 20px;
+}
+.plan-total {
+  padding: 20px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  background: #e9f8f0;
+  margin: 16px 0;
+  border-radius: 10px;
+}
+.aging-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+.table-wrap input {
+  min-width: 85px;
+  max-width: 170px;
+}
+.table-wrap select {
+  max-width: 310px;
+}
+.panel form {
+  margin-bottom: 24px;
+}
+.business-select {
+  width: 100%;
+  background: #19332f;
+  color: white;
+  border: 1px solid #42625b;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 16px;
+}
+.cloud-first .welcome-options {
+  display: flex;
+  flex-direction: column;
+}
+.cloud-first .welcome-options > div {
+  display: flex;
+  flex-direction: column;
+}
+.cloud-first .welcome-options .mode-card {
+  order: 5;
+}
+.cloud-first .welcome-options .divider {
+  order: 1;
+}
+.cloud-first .welcome-options form {
+  order: 2;
+}
+.cloud-first .welcome-options h2 {
+  order: 0;
+}
+.connection-note {
+  padding: 8px 24px;
+  background: #fff3d5;
+  color: #744c00;
+}
+.sidebar {
+  overflow-y: auto;
+}
+.sidebar-bottom {
+  position: static !important;
+  margin-top: 20px;
+}
+.sidebar nav {
+  flex: none;
+}
+.order-print {
+  padding: 16px;
+}
+@media (max-width: 700px) {
+  .aging-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .actions {
+    gap: 6px;
+  }
+  .table-wrap select {
+    max-width: 200px;
+  }
+}
+@media print {
+  body:has(dialog[open]) .app-shell {
+    visibility: hidden;
+  }
+  body:has(dialog[open]) dialog[open],
+  body:has(dialog[open]) dialog[open] * {
+    visibility: visible;
+  }
+  dialog[open] {
+    position: absolute;
+    inset: 0;
+    max-width: none;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+    border: 0;
+    box-shadow: none;
+  }
+  dialog::backdrop {
+    background: white;
+  }
+  .no-print,
+  .modal-heading button {
+    display: none !important;
+  }
+  .aging-cards {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}

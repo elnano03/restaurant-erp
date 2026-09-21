@@ -1,52 +1,44 @@
-# SINTECH ERP — Cuentas por Pagar 1.0
+# SINTECH ERP — Versión 2.0
 
-## Abrir en Windows
+Abre el sitio publicado e inicia sesión en **Shared workspace** con tu cuenta. El selector de la barra lateral cambia la empresa. La empresa original conserva sus datos; crear otra empresa no mueve ni copia sus registros.
 
-1. Extrae TODO el ZIP en una carpeta nueva, por ejemplo `Documentos\SINTECH-ERP-1.0`.
-2. Haz doble clic en `START_SINTECH.cmd`. Ya necesitas tener Node.js instalado (lo instalaste durante el proyecto anterior).
-3. Se abrirá `http://127.0.0.1:4173`. Mantén abierta la ventana de comandos mientras uses SINTECH.
-4. Elige **Explore with sample data** para probar, o **Open local workspace** para empezar con registros vacíos.
+## Categorías de suplidores
 
-El ZIP incluye el programa compilado (`dist`). Para este uso NO necesitas ejecutar `npm install` ni conectar Supabase. No abras `dist/index.html` directamente. Si el navegador no se abre solo, escribe la dirección de arriba.
+1. Entra a **Supplier categories → New category**.
+2. Escribe el nombre y guarda.
+3. En **Suppliers**, crea o edita el suplidor y selecciona esa categoría.
 
-En Mac: abre Terminal en la carpeta y ejecuta `node scripts/start.mjs`. Para desarrollar o recompilar se necesita Node.js 22.12 o posterior, o 24 LTS.
+El administrador puede renombrar o archivar categorías. Renombrar actualiza las asignaciones actuales de suplidores; archivar impide nuevas asignaciones y conserva el historial.
 
-## Dónde quedan los datos
+## Nuevas operaciones
 
-- **Local:** dentro del navegador de esta computadora. No es una base de datos compartida ni una cuenta protegida por contraseña. Úsalo en una computadora y perfil de navegador de confianza.
-- **Demo:** espacio independiente con datos ficticios, claramente identificado.
-- **Cloud:** dentro de tu proyecto Supabase, con usuarios y permisos. Requiere la instalación descrita en `docs/DEPLOYMENT.md`.
+| Pantalla | Uso |
+| --- | --- |
+| Supplier profile | Contactos, facturas, pagos, créditos disponibles y acceso a documentos |
+| Credits & returns | Registrar notas de crédito por devoluciones/ajustes y aplicarlas a facturas del mismo suplidor |
+| Payment planner | Preparar presupuesto semanal y registrar un pago distribuido entre varias facturas del mismo suplidor |
+| Purchasing | Registrar precios comparables, seleccionar ofertas, crear/editar órdenes, recibirlas y convertirlas en facturas borrador |
+| Documents | Subir PDF o imágenes privadas de hasta 10 MB; asociarlas a suplidores, facturas, pagos, créditos u órdenes |
+| Historical reports | Consultar saldos al cierre de una fecha, considerando aprobaciones y reversos |
+| Businesses & users | Crear empresas y administrar permisos de cuentas existentes |
+| Backups & account | Crear/descargar respaldos, recuperar una empresa separada y cambiar contraseña/correo |
 
-Los tres espacios NO se sincronizan automáticamente. No cambies entre `localhost`, `127.0.0.1`, otros puertos o perfiles esperando ver los mismos datos: cada dirección/perfil tiene almacenamiento diferente.
+Los pagos no transfieren dinero. Registra aquí lo que pagaste fuera del programa. Los créditos deben corresponder a acuerdos/notas del suplidor. Antes de anular una factura, revierte sus pagos y aplicaciones de crédito.
 
-En **Settings → Download full backup**, descarga un respaldo JSON al terminar cada jornada y antes de borrar datos del navegador o cambiar de computadora. El ZIP del programa NO contiene los registros que ingreses después. Conserva los respaldos en un lugar propio y seguro. Una exportación CSV sirve para revisar información; el respaldo completo JSON sirve para restaurarla.
+Las ofertas se comparan por producto, marca y unidad iguales. No se convierten cajas a libras automáticamente. Las órdenes se reciben completas; revisa cantidades/precios antes de marcarlas recibidas. Una factura generada desde una orden queda en borrador para aprobación.
 
-## Primeros pasos
+## Respaldo y recuperación
 
-1. **Settings:** coloca el nombre, dirección y datos de tu negocio.
-2. **Suppliers → New supplier:** agrega suplidores, categoría, contacto y términos de pago.
-3. **Invoices → New invoice:** selecciona el suplidor, número, fechas, subtotal, impuesto que figure en la factura, cargos y descuentos. Guarda como **Draft**.
-4. Abre la factura, revisa los importes y pulsa **Approve invoice**. Desde ese momento afecta las cuentas por pagar y no se puede editar su importe.
-5. Cuando pagues por fuera del programa, abre la factura y selecciona **Record payment**. Puedes registrar un abono o el saldo completo. No mueve dinero ni contacta al banco.
-6. **Payments:** consulta referencias; si registraste algo por error, usa **Reverse** e indica el motivo.
-7. **Reports:** selecciona antigüedad de deuda, estado de cuenta, compras por categoría o registro de pagos. Exporta CSV o usa **Print / PDF**.
+Se guarda una instantánea antes de la primera escritura de cada día UTC. También puedes crear una manual. Al crear la automática se retienen las últimas 30 instantáneas. Descarga copias periódicamente fuera del sistema.
 
-## Corregir errores
+**Restore as new business** crea una empresa recuperada sin sobrescribir la original. Solo tú recibes acceso inicial a esa empresa. Los archivos adjuntos permanecen en la original: los respaldos incluyen referencias, no el contenido de esos archivos ni contraseñas. Descarga los documentos importantes por separado.
 
-- Factura en borrador: usa **Edit draft**.
-- Factura aprobada incorrecta: revierte sus pagos activos y luego usa **Void**, dejando el motivo. Crea la factura corregida con un número diferenciado, por ejemplo `INV-123-CORR`, mencionando el original en la descripción.
-- Pago incorrecto: usa **Reverse**; después registra el pago correcto. El historial conserva ambos movimientos.
-- Suplidor que ya no usas: **Edit → Inactive**. Su historial permanece disponible.
-- **Blocked** impide registrar nuevos pagos a ese suplidor. **Inactive** impide nuevas facturas, pero permite saldar facturas aprobadas existentes.
+## Usuarios
 
-## Qué está incluido
+Crea y confirma la cuenta de cada persona en Supabase Authentication; luego usa **Businesses & users → Grant access** para asignarle un rol en cada empresa. Admin administra permisos; accountant registra operaciones; viewer consulta. El acceso privado al sitio también necesita compartirlo con esa persona. La recuperación por correo depende de la configuración de Auth/SMTP.
 
-Dashboard calculado con registros reales; suplidores; borradores y aprobación de facturas; pagos parciales; protección contra duplicados/sobrepagos; reversos y anulaciones con motivos; búsquedas y filtros; estados de cuenta; reportes; CSV; impresión; respaldos/restauración local; auditoría; acceso Supabase con roles; migración de la tabla antigua `Suppliers`.
+## Modo local
 
-Esta entrega completa el primer módulo funcional de Cuentas por Pagar. No es todavía el ERP integral de inventario, recetas, ventas, nómina o pedidos IA. No incluye OCR/lectura automática de facturas, almacenamiento de adjuntos, notas de crédito, conciliación bancaria ni transferencias de dinero. No calcula impuestos automáticamente: se registran los importes de cada factura.
+El modo local y la demostración conservan las funciones originales de cuentas por pagar. Las mejoras v2 necesitan sesión en el espacio compartido. Los registros locales no se suben automáticamente. En una compilación local, ejecuta `node scripts/start.mjs` después de `npm run build`; no abras `dist/index.html` directamente.
 
-## Puesta en producción compartida
-
-Está preparado el código, pero NO se ejecutaron cambios contra tu Supabase real ni se publicó una página. Para terminar esa activación se necesita acceso autorizado al proyecto Supabase, acceso al repositorio GitHub si quieres sincronizarlo y una cuenta/destino de alojamiento. No envíes contraseñas ni claves `service_role` por chat.
-
-Guía técnica: `docs/DEPLOYMENT.md`. Resultados y límites de pruebas: `docs/VALIDATION.md`.
+Guías técnicas: `docs/DEPLOYMENT.md`, `docs/VALIDATION.md` y `docs/RELEASE_V2.md`.

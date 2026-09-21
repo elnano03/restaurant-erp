@@ -1,16 +1,10 @@
-# SINTECH Restaurant ERP — Accounts Payable 1.0
+# SINTECH Restaurant ERP — Business Operations 2.0
 
-**Para comenzar en español:** abre [LEEME_PRIMERO.md](LEEME_PRIMERO.md).
+Restaurant accounts payable and purchasing application. React/Vite, Supabase/PostgreSQL, English UI, USD, America/New_York business dates.
 
-Working local-first accounts payable application built on the supplied `restaurante-erp` Sprint 1.1 project. React, Vite, Supabase/PostgreSQL. English UI, USD, America/New_York business date.
+**Guía en español:** [LEEME_PRIMERO.md](LEEME_PRIMERO.md).
 
-## Run the included build
-
-Windows: `START_SINTECH.cmd`. Mac/Linux: `node scripts/start.mjs`.
-
-The launcher serves `dist` on **http://127.0.0.1:4173**, loopback only. It requires Node.js, not npm dependencies. Never expose this launcher as a production network server.
-
-## Develop
+## Run and verify
 
 ```sh
 npm ci
@@ -18,33 +12,33 @@ npm run dev
 npm run check
 ```
 
-Use Node.js 22.12+ or 24 LTS. `npm run check` runs lint, unit tests, PostgreSQL migration/authorization tests (PGlite), mounted UI workflow tests (JSDOM), and a production build.
+Use Node.js 22.12+ or 24 LTS. Set the public Supabase URL and publishable key from `.env.example` before building the shared workspace. Never put a service-role key in the client. Sites hosting configuration is in `.openai/hosting.json`.
 
-## Implemented workflows
+## Shared workspace
 
-- Supplier directory, active/inactive/blocked status, contacts and payment terms.
-- Draft invoices, review/approval, immutable approved financial fields, duplicate number prevention per supplier.
-- Exact integer-cent calculations. Partial/full payment recording, no overpayment, reversal and void reasons.
-- Calculated dashboard, due-date priorities and five aging buckets.
-- Search/filter/pagination, supplier statements, purchase-category and payment reports, CSV formula neutralization, print styles.
-- Local and demo workspaces isolated from each other and from cloud data. JSON backup/validated local restore with a retained pre-restore copy.
-- Cloud email/password sign-in and password recovery, administrator/accountant/viewer roles, transactional validated RPCs, RLS, denied direct table writes, append-only audit records for clients, optimistic version checks and idempotent command IDs.
-- Non-destructive legacy supplier import; opening balances remain draft invoices for reconciliation.
+- Multiple businesses with independent records and administrator/accountant/viewer permissions.
+- Supplier directory and profile, editable supplier categories with archival and rename propagation.
+- Draft/approved invoices, partial payments, grouped payments, reversals, duplicate protection and audit history.
+- Supplier credits/returns, allocation to invoices and controlled reversal.
+- Weekly payment plans with budget and current balances.
+- Supplier price comparison by matching product, brand and unit; editable purchase orders, receipt and conversion to draft invoices.
+- Private PDF/JPEG/PNG/WebP documents linked to suppliers, invoices, payments, orders or credits.
+- Current and historical balance reports, CSV and print/PDF.
+- Business snapshots before the first write each UTC day, manual snapshots, download and non-destructive restore as a separate business.
+- Transactional RPCs, RLS, business-scoped foreign keys, optimistic versions and idempotent commands.
 
-## Source layout
+Local/demo mode retains the original AP workflows. Advanced v2 operations require the shared workspace; local records never synchronize automatically.
 
-`src/core/domain.js`: local business rules and pure calculations. `src/core/repository.js`: local and Supabase adapters. `src/ui`: pages, dialogs and common components. `src/App.jsx`: authentication, navigation and command dispatch. `supabase`: transactional schema and optional migration scripts. `scripts`: local launcher and backup-to-SQL conversion. `tests`: money/lifecycle, SQL/permissions and mounted UI tests.
+## Source and deployment
 
-The old inactive components and hard-coded Supabase client were removed. The uploaded RAR remains the original checkpoint. No live Supabase table or GitHub branch was changed by this delivery.
+`src/core` contains calculations and persistence; `src/ui` contains forms/pages. The v2 upgrade is `supabase/migrations/20260921201114_business_operations_v2.sql`. `scripts/v2` preserves migration generation sources. Run the upgrade once after the existing v1 schema; do not apply the old unscoped import scripts after upgrading.
 
-## Cloud activation
+See [deployment](docs/DEPLOYMENT.md), [validation](docs/VALIDATION.md) and [release notes](docs/RELEASE_V2.md).
 
-See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Build output is supplied in local mode with no production project key embedded. Existing `public."Suppliers"` remains untouched by the main migration. Review and run optional import and lockdown scripts in sequence.
+## Limits
 
-## Scope and limitations
+This is an AP/purchasing module, not a full general ledger, POS, inventory, recipes or payroll system. Payments record externally made transactions; no money is transferred. Invoice amounts are entered manually; OCR/AI extraction is not enabled. Purchase-order receipt is whole-order, not partial. Quotes are entered manually, with no automatic unit conversion.
 
-One business and currency per installation. Local mode is a trusted single-operator workspace, not a secured shared system. Cloud mode is designed for a small restaurant AP workload; snapshots load all records and should be replaced by server pagination before large-scale use. Roles do not implement segregation of approval duties. Audit records are protected against ordinary clients, not project administrators. Local imports can replace local history.
+Snapshots share the same database and exclude document bytes and Auth credentials; they do not replace independent disaster-recovery backups. A restored business keeps financial history and gets new IDs; only the restoring administrator receives access. Documents remain in the original business.
 
-Inventory, recipes, payroll, POS, automatic bank payments, bank reconciliation, credit notes, recurring schedules, OCR and document attachments are not implemented. This is the completed AP release, not the entire future restaurant ERP.
-
-See [docs/VALIDATION.md](docs/VALIDATION.md) for verified behavior and unverified deployment gates.
+Account creation/confirmation remains in Supabase Authentication; business access is managed in the app. Password recovery and email changes depend on Auth URL and email-provider configuration. Private website sharing is an additional access gate. Snapshots load all business records; server pagination is needed before large-scale use.

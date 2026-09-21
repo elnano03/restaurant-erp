@@ -17,20 +17,35 @@ export function readLocal(mode) {
   localStorage.setItem(key, JSON.stringify(initial));
   return initial;
 }
+export const selectedBusiness = () =>
+  sessionStorage.getItem("sintech-business");
 export async function load(mode) {
   if (mode !== "cloud") return readLocal(mode);
-  const { data, error } = await cloud.rpc("ap_snapshot");
+  const list = await cloud.rpc("ap_business_list");
+  if (list.error) throw list.error;
+  const business =
+    list.data.find((b) => b.id === selectedBusiness()) || list.data[0];
+  if (!business)
+    throw new Error("Your account is not authorized for any business.");
+  sessionStorage.setItem("sintech-business", business.id);
+  const { data, error } = await cloud.rpc("ap_snapshot_v2", {
+    business: business.id,
+  });
+  if (data) data.businesses = list.data;
   if (error) throw error;
   return data;
 }
 export async function execute(mode, command) {
   if (mode === "cloud") {
-    const { data, error } = await cloud.rpc("ap_command", {
+    const { data, error } = await cloud.rpc("ap_command_v2", {
+      business: command.business_id || selectedBusiness(),
       request_id: command.id,
       action: command.type,
       payload: command.payload,
     });
     if (error) throw error;
+    if (data)
+      data.businesses = (await cloud.rpc("ap_business_list")).data || [];
     return data;
   }
   if (!navigator.locks)

@@ -1,4 +1,4 @@
-export const VERSION = "1.0.0";
+export const VERSION = "2.0.0";
 export const STATUSES = ["Active", "Inactive", "Blocked"];
 export const CATEGORIES = [
   "Food & Beverages",
@@ -108,13 +108,13 @@ export function invoicePaid(state, id, asOf = "9999-12-31") {
 export function balance(state, i, asOf = "9999-12-31") {
   return i.status === "Void"
     ? 0
-    : invoiceTotal(i) - invoicePaid(state, i.id, asOf);
+    : invoiceTotal(i) - invoicePaid(state, i.id, asOf) - (state.credit_allocations || []).filter(a => a.invoice_id === i.id && a.date <= asOf && (!a.reversed_at || a.reversed_at.slice(0,10) > asOf)).reduce((sum,a) => sum+a.amount_cents,0);
 }
 export function invoiceStatus(state, i, at = today()) {
   if (i.status === "Void" || i.status === "Draft") return i.status;
   if (balance(state, i) === 0) return "Paid";
   if (i.due_date < at) return "Overdue";
-  return invoicePaid(state, i.id) > 0 ? "Partial" : "Open";
+  return balance(state,i) < invoiceTotal(i) ? "Partial" : "Open";
 }
 export function supplierBalance(state, id) {
   return state.invoices
