@@ -1,3 +1,4 @@
+import { parseWeightTable, dateNearLabel } from "./invoice-layouts.js";
 // Invoice data stays in the browser. Extraction is a suggestion, never a posting instruction.
 export const normalize = (value) =>
   String(value || "")
@@ -67,12 +68,16 @@ export function parseInvoice(text, state = {}) {
     text.match(
       /(?:invoice\s*(?:number|no\.?|#)|factura\s*(?:n[oúu]m(?:ero)?\.?|no\.?|#))\s*[:#-]?\s*([A-Za-z0-9][A-Za-z0-9/-]*)/i,
     ) || text.match(/^\s*invoice\s*[:#]\s*([A-Za-z0-9][A-Za-z0-9/-]*)/im);
-  const dateLine = lines.find(
-    (l) =>
-      /(invoice\s*date|fecha\s*(?:de\s*)?factura|date\s*:)/i.test(l) &&
-      !/(due|venc)/i.test(l),
-  );
-  const dueLine = lines.find((l) => /(due\s*date|vencimiento)/i.test(l));
+  const dateLine =
+    dateNearLabel(
+      lines,
+      /\b(?:invoice\s*date|fecha\s*(?:de\s*)?factura|completed)\b\s*:?/i,
+    ) ||
+    dateNearLabel(
+      lines.filter((l) => !/(due|venc)/i.test(l)),
+      /^date\s*:/i,
+    );
+  const dueLine = dateNearLabel(lines, /\b(?:due\s*date|vencimiento)\b\s*:?/i);
   const total =
     labeledAmount(
       lines,
@@ -88,8 +93,24 @@ export function parseInvoice(text, state = {}) {
     /\b(?:shipping|freight|delivery\s+charge|flete)\b\s*[:$]?/i,
   );
   const discount = labeledAmount(lines, /\b(?:discount|descuento)\b\s*[:$]?/i);
-  const items = [];
-  for (const raw of lines) {
+  const layout = parseWeightTable(lines);
+  const items = layout.items.map((item) => {
+    const product = (state.products || []).find(
+      (p) =>
+        p.active &&
+        item.unit &&
+        p.unit === item.unit &&
+        item.description &&
+        normalize(p.name) === normalize(item.description),
+    );
+    return {
+      ...item,
+      product_id: product?.id || "",
+      product_name: product?.name || item.description,
+    };
+  });
+  for (const [lineIndex, raw] of lines.entries()) {
+    if (layout.consumed.has(lineIndex)) continue;
     if (
       /(?:sub\s*total|\btotal\b|\btax\b|balance|amount\s+due|shipping|freight|discount|payment|\bdate\b|invoice\s*(?:#|no)|phone|fax)/i.test(
         raw,
@@ -159,6 +180,14 @@ export function parseInvoice(text, state = {}) {
   const warnings = [
     "Check every product, unit, quantity, date and amount against the original. Automatic reading can miss rows or confuse pack sizes with weights.",
   ];
+  if (layout.items.length)
+    warnings.push(
+      "Multi-line weight table detected. Descriptions are taken from the product block; QTY/DLV are package counts, while billing uses total weight when it reconciles. Confirm each weight unit.",
+    );
+  if (layout.items.some((i) => i.reader_notes.length))
+    warnings.push(
+      "Some product rows need attention. Read the notes below their descriptions.",
+    );
   if (!numberMatch) warnings.push("Invoice number was not detected.");
   if (!dateLine || !invoiceDate(dateLine))
     warnings.push("Invoice date was not detected.");

@@ -36,3 +36,9 @@ Este módulo registra recepción completa y ajustes manuales; no consume recetas
 ## Despliegue
 
 Aplicar `supabase/migrations/20260921220532_invoice_inventory_import.sql` después de v2. El cambio añade tablas con RLS y extiende las funciones públicas; los helpers antiguos quedan sin permisos cliente. El sitio se mantiene privado. Ejecutar `npm run check` y construir con las variables públicas Supabase. `prebuild` genera los assets OCR desde dependencias fijadas en el lockfile.
+
+## Corrección 2.1.1: descripciones en varias líneas
+
+Las tablas con columnas Item / Brand / QTY / DLV / Tot Wgt / Price / Total se leen por bloque de producto. El código y la marca se separan de la descripción situada debajo; las líneas de pesos individuales no crean otros productos. Se conservan tamaños y presentaciones como 3-4 y 10LB. El peso se propone como cantidad facturada solo si peso × precio concuerda con el importe; la unidad no se inventa cuando falta. La pantalla muestra la descripción completa en varias líneas, marca/código, paquetes/peso y texto fuente. Completed se reconoce como etiqueta de fecha, incluso cuando el valor está debajo.
+
+La regresión reproduce los siete renglones completos visibles en la captura del usuario; no representa una verificación del PDF completo. Los documentos se vuelven a leer para obtener las nuevas sugerencias. Los registros ya guardados no se modifican.

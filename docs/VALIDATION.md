@@ -1,6 +1,6 @@
 # Validación — SINTECH 2.1
 
-`npm run check`: **25 pruebas aprobadas, 0 fallidas**, lint y build correctos.
+`npm run check`: **28 pruebas aprobadas, 0 fallidas**, lint y build correctos.
 
 La suite cubre cálculos en centavos, ciclo de facturas/pagos, duplicados, versiones, sobrepagos, reversos, auditoría, importación histórica, RLS y restricciones de escritura. Incluye PostgreSQL embebido PGlite y formularios React montados en JSDOM.
 
@@ -21,3 +21,5 @@ Pruebas adicionales: creación de suplidor desde perfil, revisión obligatoria a
 Los motores reales PDF.js/Tesseract se probaron localmente con una factura sintética en PDF de texto, imagen PNG y PDF escaneado: se detectaron dos productos y el total de 40.17 en los tres casos. OCR confundió lb con Ib en el ejemplo escaneado: la unidad quedó vacía para revisión, sin convertirla silenciosamente. No se ha comprobado la extracción del contenido del documento real NebraskaLand.pdf.
 
 La instalación del navegador de pruebas no pudo descargar Chromium; no se afirma una prueba visual completa ni OCR de punta a punta en Edge. Los formularios se verificaron montados en JSDOM y los motores en Node.
+
+La corrección 2.1.1 incorpora pruebas para tablas de peso con y sin marca, descripción partida en varias líneas, encabezados repetidos, fecha Completed y rechazo de usar marca/código como descripción cuando esta falta.

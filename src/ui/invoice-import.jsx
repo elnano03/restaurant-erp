@@ -515,7 +515,8 @@ export function InvoiceImport({
                     {form.lines.map((l, index) => (
                       <tr key={index}>
                         <td>
-                          <input
+                          <textarea
+                            rows={2}
                             aria-label={"Description " + (index + 1)}
                             required
                             value={l.description}
@@ -526,6 +527,30 @@ export function InvoiceImport({
                               })
                             }
                           />
+                          {(l.sku || l.brand) && (
+                            <small className="line-reader-meta">
+                              {l.sku && `Code: ${l.sku}`}
+                              {l.brand && ` · Brand: ${l.brand}`}
+                            </small>
+                          )}
+                          {l.total_weight && (
+                            <small className="line-reader-meta">
+                              Packages ordered: {l.ordered_quantity} ·
+                              Delivered: {l.delivered_quantity} · Total weight:{" "}
+                              {l.total_weight}
+                            </small>
+                          )}
+                          {l.reader_notes?.map((note, n) => (
+                            <small className="line-reader-note" key={n}>
+                              {note}
+                            </small>
+                          ))}
+                          {l.source && (
+                            <details className="line-source">
+                              <summary>Source lines</summary>
+                              <pre>{l.source}</pre>
+                            </details>
+                          )}
                         </td>
                         {["quantity", "unit", "unit_price", "amount"].map(
                           (k) => (

@@ -71,3 +71,36 @@
     display: none;
   }
 }
+
+.import-lines textarea {
+  font: inherit;
+  width: 300px;
+  min-width: 260px;
+  resize: vertical;
+  line-height: 1.4;
+  border: 1px solid #cdd7e5;
+  border-radius: 6px;
+  padding: 8px;
+}
+.line-reader-meta,
+.line-reader-note {
+  display: block;
+  max-width: 320px;
+  margin-top: 5px;
+  font-size: 11px;
+}
+.line-reader-note {
+  color: #9a471c;
+}
+.line-source {
+  max-width: 320px;
+  font-size: 11px;
+  margin-top: 6px;
+}
+.line-source pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.import-lines td {
+  vertical-align: top;
+}
