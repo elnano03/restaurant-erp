@@ -31,7 +31,7 @@ Límite: 10 MB, 12 páginas por PDF, 300 líneas por factura. La primera lectura
 - Anular la factura revierte sus entradas. Si el stock ya se usó, la anulación se rechaza hasta revisar el historial de inventario. Los pagos/créditos activos deben revertirse antes de anular.
 - Los respaldos y la recuperación en empresa separada incluyen productos, líneas y movimientos. Los archivos originales siguen en la empresa original.
 
-Este módulo registra recepción completa y ajustes manuales; no consume recetas, no se conecta al POS y no registra recepción parcial. No convierte automáticamente notas de crédito en salidas de inventario.
+Este módulo registra recepción completa y ajustes manuales. Desde 2.2, Kitchen usage consume ingredientes de recetas y registra merma; no se conecta al POS ni registra recepción parcial. No convierte automáticamente notas de crédito en salidas de inventario.
 
 ## Despliegue
 

@@ -45,6 +45,7 @@ import {
 } from "./ui/dialogs";
 import { Button, Field } from "./ui/common";
 import "./App.css";
+import { Recipes, Kitchen } from "./ui/kitchen";
 import { InvoiceImport, Inventory } from "./ui/invoice-import";
 import {
   Categories,
@@ -66,6 +67,8 @@ const links = [
   ["/invoices", "Invoices", FileText],
   ["/invoice-import", "Import invoice", FileText],
   ["/inventory", "Inventory", Database],
+  ["/recipes", "Recipes & costs", ChefHat],
+  ["/kitchen", "Kitchen usage", ChefHat],
   ["/credits", "Credits & returns", CreditCard],
   ["/payments", "Payments", CreditCard],
   ["/planner", "Payment planner", CreditCard],
@@ -426,6 +429,8 @@ function App() {
     const extras = {
       "/categories": Categories,
       "/inventory": Inventory,
+      "/recipes": Recipes,
+      "/kitchen": Kitchen,
       "/invoice-import": InvoiceImport,
       "/businesses": BusinessUsers,
       "/credits": Credits,

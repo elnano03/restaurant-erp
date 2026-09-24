@@ -37,12 +37,17 @@ export async function load(mode) {
 }
 export async function execute(mode, command) {
   if (mode === "cloud") {
-    const { data, error } = await cloud.rpc("ap_command_v2", {
-      business: command.business_id || selectedBusiness(),
-      request_id: command.id,
-      action: command.type,
-      payload: command.payload,
-    });
+    const { data, error } = await cloud.rpc(
+      /^(recipe\.|kitchen\.)/.test(command.type)
+        ? "ap_kitchen_command"
+        : "ap_command_v2",
+      {
+        business: command.business_id || selectedBusiness(),
+        request_id: command.id,
+        action: command.type,
+        payload: command.payload,
+      },
+    );
     if (error) throw error;
     if (data)
       data.businesses = (await cloud.rpc("ap_business_list")).data || [];

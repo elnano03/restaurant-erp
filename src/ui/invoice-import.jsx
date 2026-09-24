@@ -799,8 +799,8 @@ export function Inventory({ state, onSubmit, canWrite, isAdmin }) {
           <p className="eyebrow">PRODUCTS & RECEIPTS</p>
           <h1>Inventory</h1>
           <p>
-            Stock comes from confirmed receipts and audited adjustments. Invoice
-            uploads alone do not change stock.
+            Stock reflects receipts, kitchen preparation, waste and audited
+            adjustments. Invoice uploads alone do not change stock.
           </p>
         </div>
         <div className="actions">

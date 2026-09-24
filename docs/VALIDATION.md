@@ -1,6 +1,6 @@
-# Validación — SINTECH 2.1
+# Validación — SINTECH 2.2
 
-`npm run check`: **28 pruebas aprobadas, 0 fallidas**, lint y build correctos.
+Suite actual: **33 pruebas aprobadas, 0 fallidas**. Verificación de lint y compilación de producción.
 
 La suite cubre cálculos en centavos, ciclo de facturas/pagos, duplicados, versiones, sobrepagos, reversos, auditoría, importación histórica, RLS y restricciones de escritura. Incluye PostgreSQL embebido PGlite y formularios React montados en JSDOM.
 
@@ -23,3 +23,11 @@ Los motores reales PDF.js/Tesseract se probaron localmente con una factura sint�
 La instalación del navegador de pruebas no pudo descargar Chromium; no se afirma una prueba visual completa ni OCR de punta a punta en Edge. Los formularios se verificaron montados en JSDOM y los motores en Node.
 
 La corrección 2.1.1 incorpora pruebas para tablas de peso con y sin marca, descripción partida en varias líneas, encabezados repetidos, fecha Completed y rechazo de usar marca/código como descripción cuando esta falta.
+
+## Recetas y cocina 2.2
+
+33 pruebas aprobadas: conserva las anteriores y añade costo por unidad de inventario (no por caja facturada), selección de última factura aprobada, agrupación de renglones, costos faltantes, redondeo de consumo, cantidades escaladas, reintentos, falta de existencias sin escritura parcial, versiones obsoletas, reversión tras editar la receta, permisos y aislamiento por restaurante. Se verifica recuperación de recetas/entradas/movimientos con nuevos IDs y formulario React con confirmación obligatoria.
+
+Se aplicó la migración remota y se verificó el snapshot con el rol authenticated. Las tablas nuevas tienen RLS y no permiten INSERT directo. No se crearon preparaciones ficticias en producción.
+
+Advisors no reportó defectos nuevos en las tablas ni endpoints de cocina. Quedan advertencias previas de funciones autorizadas con SECURITY DEFINER en el módulo AP y protección de contraseñas filtradas desactivada; las tablas internas sin políticas están bloqueadas deliberadamente al cliente. Referencias: https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable y https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection . La interfaz nueva se probó en JSDOM; no se realizó revisión visual con navegador real en esta entrega.
