@@ -1,6 +1,6 @@
-# Validación — SINTECH 2.2
+# Validación — SINTECH 2.3
 
-Suite actual: **33 pruebas aprobadas, 0 fallidas**. Verificación de lint y compilación de producción.
+Suite actual: **37 pruebas aprobadas, 0 fallidas**. Verificación de lint y compilación de producción.
 
 La suite cubre cálculos en centavos, ciclo de facturas/pagos, duplicados, versiones, sobrepagos, reversos, auditoría, importación histórica, RLS y restricciones de escritura. Incluye PostgreSQL embebido PGlite y formularios React montados en JSDOM.
 
@@ -31,3 +31,9 @@ La corrección 2.1.1 incorpora pruebas para tablas de peso con y sin marca, desc
 Se aplicó la migración remota y se verificó el snapshot con el rol authenticated. Las tablas nuevas tienen RLS y no permiten INSERT directo. No se crearon preparaciones ficticias en producción.
 
 Advisors no reportó defectos nuevos en las tablas ni endpoints de cocina. Quedan advertencias previas de funciones autorizadas con SECURITY DEFINER en el módulo AP y protección de contraseñas filtradas desactivada; las tablas internas sin políticas están bloqueadas deliberadamente al cliente. Referencias: https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable y https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection . La interfaz nueva se probó en JSDOM; no se realizó revisión visual con navegador real en esta entrega.
+
+## Operaciones PRO 2.3
+
+Ver [auditoría y guía de operaciones](PRO_OPERATIONS.md): navegación por módulos, conteos obsoletos, reversión transaccional de lote, órdenes con productos inventariables, enlace a factura existente, retención de pagos, recuperación de conteos y corte horario. La revisión de permisos remota confirma que usuarios anónimos no ejecutan comandos y que clientes autenticados no insertan conteos directamente ni acceden al helper antiguo.
+
+La regresión SQL de créditos/compras, importación e inventario, y recetas/cocina se ejecutó también con todas las migraciones PRO activadas; los cuatro escenarios integrados pasaron.

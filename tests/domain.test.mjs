@@ -238,3 +238,18 @@ test("date validation, blocked suppliers, and CSV injection", () => {
   assert.ok(csvText([['=HYPERLINK("x")']]).includes("'=HYPERLINK"));
   assert.equal(normalizeStatus("Activo"), "Active");
 });
+
+test("payment reversal cutoffs use Eastern business day near UTC midnight", () => {
+  const state = {
+    payments: [
+      {
+        invoice_id: "i",
+        date: "2026-01-02",
+        amount_cents: 100,
+        reversed_at: "2026-01-06T02:00:00Z",
+      },
+    ],
+  };
+  assert.equal(invoicePaid(state, "i", "2026-01-04"), 100);
+  assert.equal(invoicePaid(state, "i", "2026-01-05"), 0);
+});

@@ -1,4 +1,4 @@
-export const VERSION = "2.2.0";
+export const VERSION = "2.3.0";
 export const STATUSES = ["Active", "Inactive", "Blocked"];
 export const CATEGORIES = [
   "Food & Beverages",
@@ -95,26 +95,44 @@ export function emptyState() {
 export function invoiceTotal(i) {
   return i.subtotal_cents + i.tax_cents + i.shipping_cents - i.discount_cents;
 }
+export const easternDay = (timestamp) =>
+  timestamp && timestamp.length > 10
+    ? new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/New_York",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      }).format(new Date(timestamp))
+    : timestamp;
 export function invoicePaid(state, id, asOf = "9999-12-31") {
   return state.payments
     .filter(
       (p) =>
         p.invoice_id === id &&
         p.date <= asOf &&
-        (!p.reversed_at || p.reversed_at.slice(0, 10) > asOf),
+        (!p.reversed_at || easternDay(p.reversed_at) > asOf),
     )
     .reduce((n, p) => n + p.amount_cents, 0);
 }
 export function balance(state, i, asOf = "9999-12-31") {
   return i.status === "Void"
     ? 0
-    : invoiceTotal(i) - invoicePaid(state, i.id, asOf) - (state.credit_allocations || []).filter(a => a.invoice_id === i.id && a.date <= asOf && (!a.reversed_at || a.reversed_at.slice(0,10) > asOf)).reduce((sum,a) => sum+a.amount_cents,0);
+    : invoiceTotal(i) -
+        invoicePaid(state, i.id, asOf) -
+        (state.credit_allocations || [])
+          .filter(
+            (a) =>
+              a.invoice_id === i.id &&
+              a.date <= asOf &&
+              (!a.reversed_at || easternDay(a.reversed_at) > asOf),
+          )
+          .reduce((sum, a) => sum + a.amount_cents, 0);
 }
 export function invoiceStatus(state, i, at = today()) {
   if (i.status === "Void" || i.status === "Draft") return i.status;
   if (balance(state, i) === 0) return "Paid";
   if (i.due_date < at) return "Overdue";
-  return balance(state,i) < invoiceTotal(i) ? "Partial" : "Open";
+  return balance(state, i) < invoiceTotal(i) ? "Partial" : "Open";
 }
 export function supplierBalance(state, id) {
   return state.invoices

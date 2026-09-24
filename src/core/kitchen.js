@@ -33,9 +33,13 @@ export function productCosts(state) {
   return costs;
 }
 export function onHand(state, id) {
-  return (state.inventory_moves || [])
-    .filter((m) => m.product_id === id)
-    .reduce((sum, m) => sum + Number(m.quantity), 0);
+  return (
+    Math.round(
+      (state.inventory_moves || [])
+        .filter((m) => m.product_id === id)
+        .reduce((sum, m) => sum + Number(m.quantity), 0) * 1000,
+    ) / 1000
+  );
 }
 export function recipeCost(
   state,

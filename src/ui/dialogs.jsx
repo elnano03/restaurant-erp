@@ -594,6 +594,9 @@ export function InvoiceDetail({
         )}
       </div>
       <div className="modal-footer">
+        {invoice.payment_hold && (
+          <p className="alert info">Payment hold: {invoice.hold_reason}</p>
+        )}
         <Button kind="secondary" onClick={() => window.print()}>
           <Printer size={16} />
           Print
@@ -608,6 +611,7 @@ export function InvoiceDetail({
         )}
         {canWrite &&
           invoice.status === "Approved" &&
+          !invoice.payment_hold &&
           balance(state, invoice) > 0 && (
             <Button onClick={onPay}>
               <CreditCard size={16} />

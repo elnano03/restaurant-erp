@@ -790,7 +790,9 @@ export function Inventory({ state, onSubmit, canWrite, isAdmin }) {
     (i) =>
       i.status === "Approved" &&
       !i.inventory_received_at &&
-      (state.invoice_lines || []).some((l) => l.invoice_id === i.id),
+      (state.invoice_lines || []).some(
+        (l) => l.invoice_id === i.id && l.product_id,
+      ),
   );
   return (
     <>

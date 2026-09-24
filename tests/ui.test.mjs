@@ -65,6 +65,15 @@ test("mounted React workflow: supplier, invoice, partial payment, reversal, repo
   );
   await screen.findByRole("heading", { name: "Accounts payable" });
   assert.match(document.body.textContent, /No outstanding invoices/);
+  assert.equal(
+    within(
+      screen.getByRole("navigation", { name: "Main navigation" }),
+    ).getAllByRole("button").length,
+    7,
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Purchasing", exact: true }),
+  );
   await user.click(
     screen.getByRole("button", { name: "Suppliers", exact: true }),
   );
@@ -75,6 +84,9 @@ test("mounted React workflow: supplier, invoice, partial payment, reversal, repo
   await user.type(screen.getByLabelText("Email"), "ui@example.com");
   await user.click(screen.getByRole("button", { name: "Save supplier" }));
   await screen.findByText("UI Test Supplier", { selector: "td strong" });
+  await user.click(
+    screen.getByRole("button", { name: "Accounts payable", exact: true }),
+  );
   await user.click(
     screen.getByRole("button", { name: "Invoices", exact: true }),
   );
@@ -124,6 +136,9 @@ test("mounted React workflow: supplier, invoice, partial payment, reversal, repo
     ),
   );
   await user.click(
+    screen.getByRole("button", { name: "Purchasing", exact: true }),
+  );
+  await user.click(
     screen.getByRole("button", { name: "Suppliers", exact: true }),
   );
   await user.click(
@@ -131,6 +146,9 @@ test("mounted React workflow: supplier, invoice, partial payment, reversal, repo
   );
   await screen.findByRole("heading", { name: "Supplier statement" });
   assert.match(document.body.textContent, /Total outstanding: \$100.00/);
+  await user.click(
+    screen.getByRole("button", { name: "Administration", exact: true }),
+  );
   await user.click(
     screen.getByRole("button", { name: "Settings", exact: true }),
   );
@@ -158,6 +176,9 @@ test("mounted React workflow: supplier, invoice, partial payment, reversal, repo
   assert.equal(
     JSON.parse(localStorage.getItem("sintech-ap-v1-demo")).suppliers.length,
     3,
+  );
+  await user.click(
+    screen.getByRole("button", { name: "Administration", exact: true }),
   );
   await user.click(
     screen.getByRole("button", { name: "Settings", exact: true }),

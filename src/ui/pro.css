@@ -1,0 +1,74 @@
+.pro-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin: 22px 0;
+}
+.pro-metrics > div {
+  border: 1px solid #d8e2dd;
+  border-top: 3px solid #28745b;
+  border-radius: 10px;
+  background: white;
+  padding: 20px;
+}
+.pro-metrics span {
+  font-size: 0.875rem;
+  color: #50665d;
+  display: block;
+}
+.pro-metrics strong {
+  display: block;
+  font-size: 1.65rem;
+  margin-top: 12px;
+}
+.pro-filters {
+  display: flex;
+  gap: 18px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.pro-filters label {
+  font-size: 0.9375rem;
+}
+.pro-panel {
+  padding: 24px;
+}
+.pro-panel fieldset {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.pro-panel .actions {
+  margin-top: 20px;
+}
+.table-wrap td small {
+  display: block;
+  white-space: normal;
+  font-size: 0.875rem;
+  color: #5b6c64;
+  margin-top: 6px;
+}
+.table-wrap th {
+  font-size: 0.875rem;
+}
+.table-wrap td {
+  font-size: 0.9375rem;
+}
+.pro-panel input[type="number"] {
+  max-width: 160px;
+}
+.pro-panel .table-wrap {
+  margin-bottom: 18px;
+}
+@media (max-width: 800px) {
+  .pro-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pro-metrics strong {
+    font-size: 1.25rem;
+  }
+  .pro-panel {
+    padding: 14px;
+  }
+}

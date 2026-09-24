@@ -50,6 +50,15 @@ test("kitchen recipes, costing, atomic consumption, permissions, reversal and ba
       "utf8",
     ),
   );
+  await db.exec(
+    await readFile(
+      new URL(
+        "supabase/migrations/20260924230354_operations_pro_controls.sql",
+        root,
+      ),
+      "utf8",
+    ),
+  );
   const b = (await db.query("select id from public.ap_businesses")).rows[0].id;
   async function as(user) {
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [

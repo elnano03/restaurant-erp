@@ -78,3 +78,27 @@ test("comparison keeps brands and units separate and uses latest supplier quote"
   assert.equal(g.find((x) => x.length === 2)[0].id, "c");
   assert.equal(compareQuotes(s, ["s1"], "2026-01-03")[0][0].id, "b");
 });
+
+test("blocked and inactive suppliers cannot win price comparisons", () => {
+  const quotes = ["active", "blocked", "inactive"].map((id, i) => ({
+    id,
+    supplier_id: id,
+    product: "Rice",
+    brand: "Brand",
+    unit: "lb",
+    date: "2026-01-01",
+    unit_cents: 300 - i * 100,
+    active: true,
+    version: 1,
+  }));
+  const state = {
+    quotes,
+    suppliers: [
+      { id: "active", status: "Active" },
+      { id: "blocked", status: "Blocked" },
+      { id: "inactive", status: "Inactive" },
+    ],
+  };
+  assert.equal(compareQuotes(state, [], "2026-01-02")[0].length, 1);
+  assert.equal(compareQuotes(state, [], "2026-01-02")[0][0].id, "active");
+});

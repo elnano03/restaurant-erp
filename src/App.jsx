@@ -2,12 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  Users,
   FileText,
+  Users,
   CreditCard,
   BarChart3,
   Settings as SettingsIcon,
-  History,
   RefreshCw,
   LogOut,
   Menu,
@@ -45,6 +44,14 @@ import {
 } from "./ui/dialogs";
 import { Button, Field } from "./ui/common";
 import "./App.css";
+import { MODULES, moduleFor } from "./core/modules";
+import {
+  StockDesk,
+  StockCounts,
+  MovementLedger,
+  PayablesDesk,
+  PurchasingDesk,
+} from "./ui/pro";
 import { Recipes, Kitchen } from "./ui/kitchen";
 import { InvoiceImport, Inventory } from "./ui/invoice-import";
 import {
@@ -59,28 +66,17 @@ import {
   BackupsAccount,
 } from "./ui/operations";
 
-const links = [
-  ["/dashboard", "Overview", LayoutDashboard],
-  ["/suppliers", "Suppliers", Users],
-  ["/categories", "Supplier categories", Users],
-  ["/supplier-profile", "Supplier profile", Users],
-  ["/invoices", "Invoices", FileText],
-  ["/invoice-import", "Import invoice", FileText],
-  ["/inventory", "Inventory", Database],
-  ["/recipes", "Recipes & costs", ChefHat],
-  ["/kitchen", "Kitchen usage", ChefHat],
-  ["/credits", "Credits & returns", CreditCard],
-  ["/payments", "Payments", CreditCard],
-  ["/planner", "Payment planner", CreditCard],
-  ["/purchasing", "Purchasing", FileText],
-  ["/documents", "Documents", FileText],
-  ["/reports", "Reports", BarChart3],
-  ["/historical", "Historical reports", BarChart3],
-  ["/activity", "Activity log", History],
-  ["/businesses", "Businesses & users", Users],
-  ["/backups", "Backups & account", SettingsIcon],
-  ["/settings", "Settings", SettingsIcon],
-];
+const moduleIcons = {
+  overview: LayoutDashboard,
+  inventory: Database,
+  purchasing: Users,
+  payables: CreditCard,
+  kitchen: ChefHat,
+  reports: BarChart3,
+  administration: SettingsIcon,
+};
+const links = MODULES.flatMap((m) => m.pages);
+
 function Welcome({ choose }) {
   const [email, setEmail] = useState(""),
     [password, setPassword] = useState(""),
@@ -428,6 +424,13 @@ function App() {
   if (state) {
     const extras = {
       "/categories": Categories,
+      "/stock": StockDesk,
+      "/stock-counts": StockCounts,
+      "/stock-movements": MovementLedger,
+      "/payables": PayablesDesk,
+      "/procurement": PurchasingDesk,
+      "/quotes": Purchasing,
+      "/orders": Purchasing,
       "/inventory": Inventory,
       "/recipes": Recipes,
       "/kitchen": Kitchen,
@@ -444,7 +447,18 @@ function App() {
     if (Extra)
       content =
         mode === "cloud" ? (
-          <Extra key={state.business_id} {...props} />
+          <Extra
+            key={state.business_id + path}
+            {...props}
+            initialTab={
+              path === "/orders"
+                ? "Orders"
+                : path === "/quotes"
+                  ? "Prices"
+                  : "Compare"
+            }
+            hideTabs
+          />
         ) : (
           <section className="panel">
             <h2>Shared workspace feature</h2>
@@ -534,30 +548,26 @@ function App() {
           </select>
         )}
         <nav aria-label="Main navigation">
-          {links.map(([url, label, Icon]) => (
-            <button
-              key={url}
-              className={
-                path === url || (url === "/dashboard" && path === "/")
-                  ? "nav-item selected"
-                  : "nav-item"
-              }
-              onClick={() => navigate(url)}
-            >
-              <Icon size={19} />
-              {label}
-              {label === "Invoices" &&
-                state?.invoices.some((i) => i.status === "Draft") && (
-                  <span className="nav-count">
-                    {state.invoices.filter((i) => i.status === "Draft").length}
-                  </span>
-                )}
-            </button>
-          ))}
+          {MODULES.map((m) => {
+            const Icon = moduleIcons[m.id];
+            return (
+              <button
+                key={m.id}
+                className={
+                  "nav-item " + (moduleFor(path).id === m.id ? "selected" : "")
+                }
+                aria-current={moduleFor(path).id === m.id ? "page" : undefined}
+                onClick={() => navigate(m.home)}
+              >
+                <Icon size={19} />
+                {m.label}
+              </button>
+            );
+          })}
         </nav>
         <div className="sidebar-bottom">
           <div className="version">
-            ACCOUNTS PAYABLE <span>v{VERSION}</span>
+            RESTAURANT ERP <span>v{VERSION}</span>
           </div>
           <Button kind="ghost" disabled={saving} onClick={leave}>
             <LogOut size={17} />
@@ -614,6 +624,21 @@ function App() {
             until the server confirms them.
           </div>
         )}
+        <nav
+          className="module-tabs"
+          aria-label={moduleFor(path).label + " sections"}
+        >
+          {moduleFor(path).pages.map(([url, label]) => (
+            <button
+              key={url}
+              aria-current={path === url ? "page" : undefined}
+              className={path === url ? "active" : ""}
+              onClick={() => navigate(url)}
+            >
+              {label}
+            </button>
+          ))}
+        </nav>
         <main>
           {error && (
             <div className="alert error" role="alert">
@@ -633,7 +658,7 @@ function App() {
           )}
         </main>
         <footer className="app-footer">
-          SINTECH ERP <span>Accounts Payable · USD · Eastern Time</span>
+          SINTECH ERP <span>Operations · USD · Eastern Time</span>
         </footer>
       </div>
       {toast && (

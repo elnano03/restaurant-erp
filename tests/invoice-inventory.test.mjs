@@ -41,6 +41,24 @@ test("invoice import posts AP and inventory atomically, protects tenants, revers
       "utf8",
     ),
   );
+  await db.exec(
+    await readFile(
+      new URL(
+        "supabase/migrations/20260924224147_recipes_kitchen_usage.sql",
+        root,
+      ),
+      "utf8",
+    ),
+  );
+  await db.exec(
+    await readFile(
+      new URL(
+        "supabase/migrations/20260924230354_operations_pro_controls.sql",
+        root,
+      ),
+      "utf8",
+    ),
+  );
   const b = (await db.query("select id from public.ap_businesses")).rows[0].id;
   async function as(user) {
     await db.query("select set_config('request.jwt.claim.sub',$1,false)", [
@@ -112,9 +130,19 @@ test("invoice import posts AP and inventory atomically, protects tenants, revers
     0,
     "failed import must roll back supplier too",
   );
-  await assert.rejects(()=>command('invoice.import',{...payload,lines:[{...payload.lines[0],stock_quantity:0}]}),/Stock quantity/);
-  const empty=(await db.query('select public.ap_snapshot_v2($1) s',[b])).rows[0].s;
-  assert.equal(empty.invoices.length,0);assert.equal(empty.suppliers.length,0);assert.equal(empty.products.length,0);
+  await assert.rejects(
+    () =>
+      command("invoice.import", {
+        ...payload,
+        lines: [{ ...payload.lines[0], stock_quantity: 0 }],
+      }),
+    /Stock quantity/,
+  );
+  const empty = (await db.query("select public.ap_snapshot_v2($1) s", [b]))
+    .rows[0].s;
+  assert.equal(empty.invoices.length, 0);
+  assert.equal(empty.suppliers.length, 0);
+  assert.equal(empty.products.length, 0);
   const req = uuid();
   let state = await command("invoice.import", payload, b, req);
   assert.equal(state.suppliers.length, 1);

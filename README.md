@@ -50,3 +50,7 @@ See [invoice import guide](docs/INVOICE_IMPORT.md). Apply the additive `20260921
 ## Release 2.2 — Kitchen
 
 Recipes & costs connects reviewed invoice-line costs to recipe yield, portion cost and target food cost. Kitchen usage posts preparation and ingredient waste as atomic stock movements, with immutable cost snapshots and administrator correction reversals. See [Kitchen guide](docs/KITCHEN.md).
+
+## Release 2.3 — PRO operations
+
+Seven modules with contextual tabs. Inventory adds physical counts, reorder levels and a full movement ledger. Purchasing connects orders, invoice lines and receipts, with atomic order batches and matching to existing invoices. Accounts payable adds payment holds, work queues and budget/balance guards. See [Operations guide and audit](docs/PRO_OPERATIONS.md).

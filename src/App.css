@@ -1444,3 +1444,52 @@ td strong {
     margin: 16mm;
   }
 }
+
+.module-tabs {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  padding: 12px 28px;
+  background: white;
+  border-bottom: 1px solid #dce5e2;
+  flex-shrink: 0;
+}
+.module-tabs button {
+  white-space: nowrap;
+  border: 0;
+  background: transparent;
+  padding: 11px 14px;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: #536962;
+  cursor: pointer;
+}
+.module-tabs button.active {
+  background: #163e33;
+  color: white;
+  font-weight: 600;
+}
+.module-tabs button:focus-visible {
+  outline: 3px solid #56a98b;
+  outline-offset: 2px;
+}
+.actions[hidden] {
+  display: none;
+}
+.sidebar nav {
+  gap: 5px;
+}
+.sidebar .nav-item {
+  font-size: 0.9375rem;
+}
+@media (max-width: 700px) {
+  .module-tabs {
+    padding: 10px 14px;
+  }
+}
+@media print {
+  .module-tabs {
+    display: none;
+  }
+}

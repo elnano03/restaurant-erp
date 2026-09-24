@@ -64,11 +64,19 @@ export function historicalRows(state, at = today(), supplier = "") {
       };
     });
 }
+export const quoteKey = (q) =>
+  [q.product, q.unit, q.brand || ""]
+    .map((v) => v.trim().toLowerCase())
+    .join("|");
 export function compareQuotes(state, selected = [], at = today()) {
   const latest = new Map();
   for (const q of state.quotes || []) {
     if (
       !q.active ||
+      (state.suppliers &&
+        !state.suppliers.some(
+          (s) => s.id === q.supplier_id && s.status === "Active",
+        )) ||
       q.date > at ||
       (selected.length && !selected.includes(q.supplier_id))
     )

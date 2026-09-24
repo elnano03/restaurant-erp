@@ -66,6 +66,9 @@ export function InvoiceRows({ state, items, onOpen, onPay, canWrite }) {
               <td>{dateLabel(i.due_date)}</td>
               <td>
                 <Badge>{invoiceStatus(state, i)}</Badge>
+                {i.payment_hold && (
+                  <small>Payment hold · {i.hold_reason}</small>
+                )}
               </td>
               <td className="numeric">{money(invoiceTotal(i))}</td>
               <td className="numeric strong">{money(balance(state, i))}</td>
@@ -76,6 +79,7 @@ export function InvoiceRows({ state, items, onOpen, onPay, canWrite }) {
                   </Button>
                   {canWrite &&
                     i.status === "Approved" &&
+                    !i.payment_hold &&
                     balance(state, i) > 0 && (
                       <Button kind="secondary small" onClick={() => onPay(i)}>
                         Pay

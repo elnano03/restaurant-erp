@@ -14,6 +14,8 @@ import {
   historicalRows,
   printableRows,
   compareQuotes,
+  businessDay,
+  quoteKey,
 } from "../core/operations";
 import { cloud, selectedBusiness } from "../core/repository";
 import { download, exportCSV } from "../core/export";
@@ -440,13 +442,16 @@ export function PaymentPlanner({ state, onSubmit, canWrite }) {
     .filter(
       (i) =>
         i.status === "Approved" &&
+        !i.payment_hold &&
+        state.suppliers.find((s) => s.id === i.supplier_id)?.status !==
+          "Blocked" &&
         balance(state, i) > 0 &&
         (!supplier || i.supplier_id === supplier) &&
         i.due_date <= until,
     )
     .sort((a, b) => a.due_date.localeCompare(b.due_date));
   const selected = Object.entries(amounts)
-    .filter(([, v]) => Number(v) > 0)
+    .filter(([id, v]) => Number(v) > 0 && eligible.some((i) => i.id === id))
     .map(([id, v]) => ({
       invoice_id: id,
       amount_cents: Math.round(Number(v) * 100),
@@ -460,6 +465,8 @@ export function PaymentPlanner({ state, onSubmit, canWrite }) {
       amount_cents: cents(amounts[x.invoice_id]),
     }));
     if (items.length === 0) throw new Error("Enter one or more allocations.");
+    if (budget && total > cents(budget))
+      throw new Error("Allocations exceed your budget.");
     if (
       items.some(
         (x) =>
@@ -782,7 +789,9 @@ export function HistoricalReports({ state }) {
         rows={(state.credits || [])
           .filter(
             (c) =>
-              c.date <= at && (!c.voided_at || c.voided_at.slice(0, 10) > at),
+              (!supplier || c.supplier_id === supplier) &&
+              c.date <= at &&
+              (!c.voided_at || businessDay(c.voided_at) > at),
           )
           .map((c) => [
             supplierName(state, c.supplier_id),
@@ -874,6 +883,8 @@ function OrderEditor({ order, state, save, close }) {
             "Unit",
             "Quantity",
             "Unit price",
+            "Inventory product",
+            "Stock quantity",
             "Remove",
           ]}
           rows={f.lines.map((x, n) => [
@@ -912,6 +923,52 @@ function OrderEditor({ order, state, save, close }) {
               value={x.price ?? x.unit_cents / 100}
               onChange={(e) => line(n, "price", e.target.value)}
             />,
+            <select
+              aria-label={"Inventory product " + n}
+              value={x.product_id || ""}
+              onChange={(e) =>
+                setF({
+                  ...f,
+                  lines: f.lines.map((l, i) =>
+                    i === n
+                      ? {
+                          ...l,
+                          product_id: e.target.value,
+                          stock_unit:
+                            (state.products || []).find(
+                              (p) => p.id === e.target.value,
+                            )?.unit || "",
+                          stock_quantity: "",
+                        }
+                      : l,
+                  ),
+                })
+              }
+            >
+              <option value="">Not tracked / service</option>
+              {(state.products || [])
+                .filter((p) => p.active)
+                .map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} · {p.unit}
+                  </option>
+                ))}
+            </select>,
+            x.product_id ? (
+              <Field label={x.stock_unit || "Inventory unit"}>
+                <input
+                  aria-label={"Stock quantity " + n}
+                  required
+                  type="number"
+                  min="0.001"
+                  step="0.001"
+                  value={x.stock_quantity ?? ""}
+                  onChange={(e) => line(n, "stock_quantity", e.target.value)}
+                />
+              </Field>
+            ) : (
+              "—"
+            ),
             <Button
               type="button"
               kind="ghost"
@@ -941,7 +998,9 @@ function OrderEditor({ order, state, save, close }) {
         </Button>
         <p>
           Order totals exclude tax and shipping. Enter those when converting the
-          received order to an invoice.
+          delivered order to an invoice. For inventory items, select the product
+          and total quantity in its stock unit (for example, 2 cases containing
+          24 bags = 24 bags). Unmapped lines do not add stock.
         </p>
         <Notice task={task} />
         <div className="modal-footer">
@@ -951,8 +1010,15 @@ function OrderEditor({ order, state, save, close }) {
     </Modal>
   );
 }
-export function Purchasing({ state, onSubmit, canWrite }) {
-  const [tab, setTab] = useState("Compare"),
+export function Purchasing({
+  state,
+  onSubmit,
+  canWrite,
+  initialTab = "Compare",
+  hideTabs = false,
+  navigate,
+}) {
+  const [tab, setTab] = useState(initialTab),
     [selected, setSelected] = useState([]),
     [edit, setEdit] = useState(null),
     [order, setOrder] = useState(null),
@@ -961,12 +1027,12 @@ export function Purchasing({ state, onSubmit, canWrite }) {
     [choices, setChoices] = useState({}),
     [quantities, setQuantities] = useState({}),
     task = useTask();
+  const pendingOrders = useRef(null);
   const groups = compareQuotes(state, selected);
   async function generate() {
     const perSupplier = new Map();
     for (const qs of groups) {
-      const key =
-        qs[0].product.toLowerCase() + "|" + qs[0].unit + "|" + qs[0].brand;
+      const key = quoteKey(qs[0]);
       const qty = Number(quantities[key] || 0);
       if (qty <= 0) continue;
       const q = qs.find((x) => x.id === choices[key]) || qs[0];
@@ -981,17 +1047,28 @@ export function Purchasing({ state, onSubmit, canWrite }) {
     }
     if (!perSupplier.size)
       throw new Error("Enter quantities for at least one product.");
-    for (const [supplier_id, lines] of perSupplier)
-      await onSubmit("order.save", {
-        supplier_id,
-        number: "PO-" + today() + "-" + uid().slice(0, 6).toUpperCase(),
-        date: today(),
-        lines,
-        notes:
-          "Created from price comparison; review brand, quantity and availability.",
-      });
+    const spec = [...perSupplier].map(([supplier_id, lines]) => ({
+      supplier_id,
+      lines,
+    }));
+    const signature = JSON.stringify(spec);
+    if (pendingOrders.current?.signature !== signature)
+      pendingOrders.current = {
+        signature,
+        payload: {
+          orders: spec.map((x) => ({
+            ...x,
+            number: "PO-" + today() + "-" + uid().slice(0, 6).toUpperCase(),
+            date: today(),
+            notes: "Created from reviewed supplier comparison.",
+          })),
+        },
+      };
+    await onSubmit("order.batch", pendingOrders.current.payload);
+    pendingOrders.current = null;
     setQuantities({});
-    setTab("Orders");
+    if (hideTabs && navigate) navigate("/orders");
+    else setTab("Orders");
   }
   return (
     <>
@@ -1023,7 +1100,7 @@ export function Purchasing({ state, onSubmit, canWrite }) {
         Compare matching products, brands and units. Choose the supplier you
         prefer, then create editable purchase orders.
       </Header>
-      <div className="actions tabs">
+      <div className="actions tabs" hidden={hideTabs}>
         {["Compare", "Prices", "Orders"].map((t) => (
           <Button
             key={t}
@@ -1074,7 +1151,7 @@ export function Purchasing({ state, onSubmit, canWrite }) {
             ]}
             rows={groups.map((qs) => {
               const q = qs[0],
-                key = q.product.toLowerCase() + "|" + q.unit + "|" + q.brand;
+                key = quoteKey(q);
               return [
                 q.product + " / " + (q.brand || "Unspecified brand"),
                 q.unit,
@@ -1210,7 +1287,7 @@ export function Purchasing({ state, onSubmit, canWrite }) {
                       )
                     }
                   >
-                    {o.status === "Draft" ? "Mark ordered" : "Mark received"}
+                    {o.status === "Draft" ? "Mark ordered" : "Confirm delivery"}
                   </Button>
                   <Button
                     kind="ghost"
@@ -1296,8 +1373,9 @@ export function Purchasing({ state, onSubmit, canWrite }) {
           }
         >
           <p>
-            A draft invoice will be created. Review it against the supplier
-            document before approval.
+            A draft invoice and its product lines will be created. Review the
+            supplier document before approval; receive inventory separately in
+            Products & receipts.
           </p>
         </Editor>
       )}{" "}
