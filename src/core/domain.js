@@ -1,4 +1,4 @@
-export const VERSION = "2.3.0";
+export const VERSION = "2.4.0";
 export const STATUSES = ["Active", "Inactive", "Blocked"];
 export const CATEGORIES = [
   "Food & Beverages",

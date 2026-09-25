@@ -51,6 +51,30 @@ export const MODULES = [
     pages: [
       ["/recipes", "Recipes & costs"],
       ["/kitchen", "Kitchen usage"],
+      ["/operating-tasks", "Operations checklist"],
+    ],
+  },
+  {
+    id: "workforce",
+    label: "Workforce",
+    home: "/employees",
+    pages: [
+      ["/employees", "Employees"],
+      ["/scheduling", "Scheduling"],
+      ["/attendance", "Attendance"],
+      ["/time-off", "Time off"],
+      ["/payroll-review", "Payroll review"],
+      ["/employee-documents", "Documents"],
+      ["/workforce-access", "Access & history"],
+    ],
+  },
+  {
+    id: "sales",
+    label: "Sales & Cash",
+    home: "/sales",
+    pages: [
+      ["/sales", "Sales & cash"],
+      ["/cash-outlook", "Cash outlook"],
     ],
   },
   {

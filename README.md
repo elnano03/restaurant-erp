@@ -54,3 +54,7 @@ Recipes & costs connects reviewed invoice-line costs to recipe yield, portion co
 ## Release 2.3 — PRO operations
 
 Seven modules with contextual tabs. Inventory adds physical counts, reorder levels and a full movement ledger. Purchasing connects orders, invoice lines and receipts, with atomic order batches and matching to existing invoices. Accounts payable adds payment holds, work queues and budget/balance guards. See [Operations guide and audit](docs/PRO_OPERATIONS.md).
+
+## Version 2.4 — Workforce, Sales & Cash
+
+Workforce adds employees, scheduling, attendance corrections/import, time off, document expiration reminders, separately permissioned HR history and approved base-pay worksheets. Sales & Cash adds reviewed CSV imports, cash close reconciliation, controlled reopening and an AP cash outlook. Kitchen includes operating task checklists. See [the workflow guide](docs/WORKFORCE_SALES.md) for exact controls, import formats and integration/recovery boundaries.

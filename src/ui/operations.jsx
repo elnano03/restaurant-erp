@@ -1782,7 +1782,9 @@ export function BackupsAccount({ state, onSubmit, isAdmin, reload }) {
     <>
       <Header title="Backups & account">
         A daily snapshot is saved before the first business change of each day.
-        Keep downloaded copies outside this service.
+        Workforce and Sales & Cash records are separate and are not included in
+        these snapshots. Export those registers separately. Keep downloaded
+        copies outside this service.
       </Header>
       <Notice task={task} />
       {isAdmin && (

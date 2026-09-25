@@ -69,7 +69,7 @@ test("mounted React workflow: supplier, invoice, partial payment, reversal, repo
     within(
       screen.getByRole("navigation", { name: "Main navigation" }),
     ).getAllByRole("button").length,
-    7,
+    9,
   );
   await user.click(
     screen.getByRole("button", { name: "Purchasing", exact: true }),

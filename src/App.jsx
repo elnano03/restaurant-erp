@@ -66,7 +66,11 @@ import {
   BackupsAccount,
 } from "./ui/operations";
 
+import { Workforce, TeamAccess, FinanceDesk } from "./ui/workforce";
+
 const moduleIcons = {
+  workforce: Users,
+  sales: CreditCard,
   overview: LayoutDashboard,
   inventory: Database,
   purchasing: Users,
@@ -362,6 +366,8 @@ function App() {
     ++loadSequence.current;
     if (mode === "cloud") await cloud.auth.signOut();
     sessionStorage.removeItem("sintech-mode");
+    sessionStorage.removeItem("sintech-pending");
+    pending.current = null;
     setMode("");
     setState(null);
     setModal(null);
@@ -381,7 +387,12 @@ function App() {
         ? pending.current.command
         : { id: uid(), type, payload, business_id };
     pending.current = { signature, command, mode };
-    sessionStorage.setItem("sintech-pending", JSON.stringify(pending.current));
+    if (!type.startsWith("team."))
+      sessionStorage.setItem(
+        "sintech-pending",
+        JSON.stringify(pending.current),
+      );
+    else sessionStorage.removeItem("sintech-pending");
     ++loadSequence.current;
     setSaving(true);
     try {
@@ -423,6 +434,16 @@ function App() {
   let content = null;
   if (state) {
     const extras = {
+      "/employees": Workforce,
+      "/scheduling": Workforce,
+      "/attendance": Workforce,
+      "/time-off": Workforce,
+      "/employee-documents": Workforce,
+      "/payroll-review": Workforce,
+      "/workforce-access": TeamAccess,
+      "/sales": Workforce,
+      "/operating-tasks": Workforce,
+      "/cash-outlook": FinanceDesk,
       "/categories": Categories,
       "/stock": StockDesk,
       "/stock-counts": StockCounts,

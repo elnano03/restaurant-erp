@@ -33,10 +33,22 @@ export async function load(mode) {
   });
   if (data) data.businesses = list.data;
   if (error) throw error;
-  return data;
+  const team = await cloud.rpc("ap_team_snapshot", { business: business.id });
+  if (team.error) throw team.error;
+  return { ...data, ...team.data };
 }
 export async function execute(mode, command) {
   if (mode === "cloud") {
+    if (command.type.startsWith("team.")) {
+      const result = await cloud.rpc("ap_team_command", {
+        business: command.business_id || selectedBusiness(),
+        request_id: command.id,
+        action: command.type,
+        payload: command.payload,
+      });
+      if (result.error) throw result.error;
+      return load(mode);
+    }
     const { data, error } = await cloud.rpc(
       /^(recipe\.|kitchen\.)/.test(command.type)
         ? "ap_kitchen_command"
@@ -51,7 +63,7 @@ export async function execute(mode, command) {
     if (error) throw error;
     if (data)
       data.businesses = (await cloud.rpc("ap_business_list")).data || [];
-    return data;
+    return load(mode);
   }
   if (!navigator.locks)
     throw new Error(
