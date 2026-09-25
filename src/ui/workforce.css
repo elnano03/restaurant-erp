@@ -1,0 +1,37 @@
+.team-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 1rem 0;
+  align-items: end;
+}
+.team-filters .field {
+  flex: 1;
+  min-width: 170px;
+}
+.team-json {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f3f6fb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+.form-grid textarea {
+  min-height: 80px;
+}
+.table-wrap td {
+  vertical-align: middle;
+}
+.team-filters input,
+.team-filters select {
+  min-height: 42px;
+}
+@media (max-width: 600px) {
+  .team-filters {
+    display: block;
+  }
+  .team-filters .field {
+    margin-bottom: 0.75rem;
+  }
+}

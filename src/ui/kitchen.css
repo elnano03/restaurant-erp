@@ -1,0 +1,121 @@
+.kitchen-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+.kitchen-metrics > div {
+  padding: 18px;
+  border: 1px solid #dce5e2;
+  border-radius: 12px;
+  background: #f4f8f7;
+}
+.kitchen-metrics span,
+.kitchen-metrics small {
+  display: block;
+  color: #526660;
+  font-size: 0.875rem;
+}
+.kitchen-metrics strong {
+  display: block;
+  font-size: 1.35rem;
+  margin: 8px 0;
+  color: #163c31;
+}
+.kitchen-fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.kitchen-fieldset p {
+  line-height: 1.6;
+}
+.kitchen-fieldset h3 {
+  margin-top: 24px;
+}
+.kitchen-fieldset textarea {
+  width: 100%;
+  font: inherit;
+  padding: 12px;
+  border: 1px solid #dce5e2;
+  border-radius: 8px;
+}
+.kitchen-ingredients {
+  margin: 16px 0;
+}
+.kitchen-ingredient {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(100px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+  margin-bottom: 12px;
+}
+.kitchen-ingredient .button {
+  margin-bottom: 4px;
+}
+.kitchen-meta {
+  display: block;
+  max-width: 340px;
+  white-space: normal;
+  font-size: 0.875rem;
+  color: #60716b;
+  margin-top: 6px;
+}
+.kitchen-warning {
+  color: #a13b16;
+  display: block;
+  font-weight: 600;
+}
+.kitchen-filters {
+  display: flex;
+  gap: 20px;
+  align-items: end;
+  flex-wrap: wrap;
+  margin: 22px 0;
+}
+.kitchen-panel {
+  padding: 24px;
+}
+.kitchen-panel .actions {
+  margin-top: 20px;
+}
+.kitchen-panel .table-wrap {
+  margin-top: 20px;
+}
+.kitchen-fieldset .field > span,
+.kitchen-filters .field > span {
+  font-size: 0.875rem;
+}
+details summary {
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin-top: 8px;
+}
+details p {
+  font-size: 0.875rem;
+  white-space: normal;
+}
+@media (max-width: 700px) {
+  .kitchen-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .kitchen-ingredient {
+    grid-template-columns: 1fr;
+  }
+  .kitchen-panel {
+    padding: 16px;
+  }
+  .kitchen-metrics strong {
+    font-size: 1.1rem;
+  }
+}
+@media print {
+  .kitchen-metrics {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .kitchen-filters,
+  .modal .button {
+    display: none;
+  }
+}

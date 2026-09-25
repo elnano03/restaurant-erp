@@ -1,0 +1,39 @@
+# Validación — SINTECH 2.3
+
+Suite actual: **37 pruebas aprobadas, 0 fallidas**. Verificación de lint y compilación de producción.
+
+La suite cubre cálculos en centavos, ciclo de facturas/pagos, duplicados, versiones, sobrepagos, reversos, auditoría, importación histórica, RLS y restricciones de escritura. Incluye PostgreSQL embebido PGlite y formularios React montados en JSDOM.
+
+Para v2 verifica aislamiento entre empresas (incluyendo intentos de colisión de identificadores), roles, categorías, créditos aplicados, límites de saldo, idempotencia del pago agrupado, órdenes/recepción/conversión única, respaldos y recuperación con nuevos IDs. Verifica fechas de aprobación/reverso en reportes históricos y comparación por producto/marca/unidad. Los formularios nuevos prueban categorías, créditos, pagos agrupados y precios.
+
+## Límites
+
+Auth y Storage se simulan en las pruebas SQL. Estas pruebas no verifican envío de correo, configuración SMTP, JWT del servicio real, bytes de archivos, diseño visual o impresión en navegador real. No se introducen pagos ficticios en producción para probar los flujos.
+
+La revisión visual de escritorio/móvil y la prueba de recuperación por correo siguen pendientes. Los reportes históricos reconstruyen saldos según fechas de negocio y aprobación/reverso; no son un libro mayor ni una certificación contable.
+
+Los snapshots cargan todos los registros de una empresa. Su retención y la restauración dentro de la misma base no sustituyen respaldo externo de datos y Storage.
+
+## Importación e inventario 2.1
+
+Pruebas adicionales: creación de suplidor desde perfil, revisión obligatoria antes de publicar, cantidades de caja frente a unidad de inventario, extracción de campos y agrupación de texto PDF. PostgreSQL verifica transacción completa con rollback, archivo repetido, idempotencia, cantidades negativas rechazadas, separación entre empresas, revocación de helpers, anulación de existencias y restauración de líneas/productos/movimientos.
+
+Los motores reales PDF.js/Tesseract se probaron localmente con una factura sintética en PDF de texto, imagen PNG y PDF escaneado: se detectaron dos productos y el total de 40.17 en los tres casos. OCR confundió lb con Ib en el ejemplo escaneado: la unidad quedó vacía para revisión, sin convertirla silenciosamente. No se ha comprobado la extracción del contenido del documento real NebraskaLand.pdf.
+
+La instalación del navegador de pruebas no pudo descargar Chromium; no se afirma una prueba visual completa ni OCR de punta a punta en Edge. Los formularios se verificaron montados en JSDOM y los motores en Node.
+
+La corrección 2.1.1 incorpora pruebas para tablas de peso con y sin marca, descripción partida en varias líneas, encabezados repetidos, fecha Completed y rechazo de usar marca/código como descripción cuando esta falta.
+
+## Recetas y cocina 2.2
+
+33 pruebas aprobadas: conserva las anteriores y añade costo por unidad de inventario (no por caja facturada), selección de última factura aprobada, agrupación de renglones, costos faltantes, redondeo de consumo, cantidades escaladas, reintentos, falta de existencias sin escritura parcial, versiones obsoletas, reversión tras editar la receta, permisos y aislamiento por restaurante. Se verifica recuperación de recetas/entradas/movimientos con nuevos IDs y formulario React con confirmación obligatoria.
+
+Se aplicó la migración remota y se verificó el snapshot con el rol authenticated. Las tablas nuevas tienen RLS y no permiten INSERT directo. No se crearon preparaciones ficticias en producción.
+
+Advisors no reportó defectos nuevos en las tablas ni endpoints de cocina. Quedan advertencias previas de funciones autorizadas con SECURITY DEFINER en el módulo AP y protección de contraseñas filtradas desactivada; las tablas internas sin políticas están bloqueadas deliberadamente al cliente. Referencias: https://supabase.com/docs/guides/database/database-linter?lint=0029_authenticated_security_definer_function_executable y https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection . La interfaz nueva se probó en JSDOM; no se realizó revisión visual con navegador real en esta entrega.
+
+## Operaciones PRO 2.3
+
+Ver [auditoría y guía de operaciones](PRO_OPERATIONS.md): navegación por módulos, conteos obsoletos, reversión transaccional de lote, órdenes con productos inventariables, enlace a factura existente, retención de pagos, recuperación de conteos y corte horario. La revisión de permisos remota confirma que usuarios anónimos no ejecutan comandos y que clientes autenticados no insertan conteos directamente ni acceden al helper antiguo.
+
+La regresión SQL de créditos/compras, importación e inventario, y recetas/cocina se ejecutó también con todas las migraciones PRO activadas; los cuatro escenarios integrados pasaron.
